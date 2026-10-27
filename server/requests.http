@@ -1,0 +1,105 @@
+### TradeSim API Request Collection (RFC 2616 / REST Client)
+@baseUrl = http://localhost:5001/api
+@contentType = application/json
+
+### 1. Health Check
+GET {{baseUrl}}/health HTTP/1.1
+
+###
+
+### 2. Register New Customer (Virtual Balance: ₹10,00,000)
+# @name registerCustomer
+POST {{baseUrl}}/auth/register HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "name": "Aarav Sharma",
+  "email": "aarav.trader@tradesim.in",
+  "password": "Password123",
+  "role": "CUSTOMER"
+}
+
+###
+
+### 3. Register New Company (Creates Linked Stock)
+# @name registerCompany
+POST {{baseUrl}}/auth/register HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "name": "Vikram Sethi",
+  "email": "vikram@novatech.sim",
+  "password": "Password123",
+  "role": "COMPANY",
+  "companyName": "Nova Technologies Ltd",
+  "sector": "Information Technology",
+  "symbol": "NOVA",
+  "initialPrice": 1200.00,
+  "mu": 0.14,
+  "sigma": 0.22
+}
+
+###
+
+### 4. Login as Demo Customer (Pre-seeded)
+# @name loginCustomer
+POST {{baseUrl}}/auth/login HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "email": "trader@tradesim.in",
+  "password": "Password123"
+}
+
+### Store Customer Token
+@customerToken = {{loginCustomer.response.body.data.token}}
+
+###
+
+### 5. Login as Demo Company (Infosys Limited)
+# @name loginCompany
+POST {{baseUrl}}/auth/login HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "email": "ceo@infy.sim",
+  "password": "Password123"
+}
+
+### Store Company Token
+@companyToken = {{loginCompany.response.body.data.token}}
+
+###
+
+### 6. Get Current Authenticated Profile (Customer)
+GET {{baseUrl}}/auth/me HTTP/1.1
+Authorization: Bearer {{customerToken}}
+
+###
+
+### 7. Get Current Authenticated Profile (Company with populated stock)
+GET {{baseUrl}}/auth/me HTTP/1.1
+Authorization: Bearer {{companyToken}}
+
+###
+
+### 8. Access Company-Only Endpoint as Company (Expects 200 OK)
+GET {{baseUrl}}/company/my-stock HTTP/1.1
+Authorization: Bearer {{companyToken}}
+
+###
+
+### 9. Access Company-Only Endpoint as Customer (Expects 403 Forbidden)
+GET {{baseUrl}}/company/my-stock HTTP/1.1
+Authorization: Bearer {{customerToken}}
+
+###
+
+### 10. Access Protected Endpoint without Token (Expects 401 Unauthorized)
+GET {{baseUrl}}/auth/me HTTP/1.1
+
+###
+
+### 11. Logout
+POST {{baseUrl}}/auth/logout HTTP/1.1
+Authorization: Bearer {{customerToken}}
