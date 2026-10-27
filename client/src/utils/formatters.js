@@ -42,16 +42,16 @@ export function getInitials(symbol = '') {
 }
 
 const STOCK_COLORS = [
-  '#C9A6D8', // Mauve
-  '#38BDF8', // Sky
-  '#F472B6', // Pink
-  '#34D399', // Emerald
-  '#FBBF24', // Amber
-  '#A78BFA', // Violet
-  '#FB923C', // Orange
-  '#818CF8', // Indigo
-  '#2DD4BF', // Teal
-  '#E879F9'  // Fuchsia
+  '#F5B93B', // Primary Gold
+  '#B7791F', // Deep Bronze
+  '#C27A5B', // Warm Terra-cotta
+  '#A39578', // Muted Gold
+  '#8C7A5B', // Earth Umber
+  '#E8E2D2', // Soft Ivory
+  '#D4A373', // Light Ochre
+  '#6B614C', // Deep Ochre
+  '#9C8E75', // Sandstone
+  '#B89758'  // Antique Brass
 ];
 
 export function getStockColor(symbol = '') {

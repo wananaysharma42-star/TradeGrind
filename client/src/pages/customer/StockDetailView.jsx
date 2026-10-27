@@ -141,7 +141,7 @@ export function StockDetailView() {
             variant="ghost"
             size="sm"
             onClick={() => setTargetModalOpen(true)}
-            icon={<Target className="w-4 h-4 text-mauve" />}
+            icon={<Target className="w-4 h-4 text-accent" />}
           >
             Set Probability Target
           </Button>
@@ -198,7 +198,7 @@ export function StockDetailView() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-sm font-bold text-white">Quantitative Profile</h4>
-              <Badge variant="mauve" size="sm">STAGE 5</Badge>
+              <Badge variant="accent" size="sm">STAGE 5</Badge>
             </div>
 
             <div className="space-y-2.5 text-xs">
@@ -234,7 +234,7 @@ export function StockDetailView() {
               </div>
               <div className="flex justify-between py-1.5 border-b border-white/[0.04]">
                 <span className="text-muted">1-Day 95% Parametric VaR:</span>
-                <span className="font-semibold text-mauve font-mono">
+                <span className="font-semibold text-accent font-mono">
                   {formatINR(metrics.valueAtRisk95_1Day?.closedFormRupees || (currentPrice * 0.0245))}
                 </span>
               </div>
@@ -278,7 +278,7 @@ export function StockDetailView() {
           <div className="space-y-2 text-xs">
             <div className="flex justify-between">
               <span className="text-muted">RSI (14):</span>
-              <span className="font-semibold text-mauve font-mono">{Number(indicators.rsi14 || 52.4).toFixed(1)}</span>
+              <span className="font-semibold text-accent font-mono">{Number(indicators.rsi14 || 52.4).toFixed(1)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted">Bollinger Upper:</span>
@@ -298,7 +298,7 @@ export function StockDetailView() {
               insights.signals.slice(0, 3).map((s, idx) => (
                 <div key={idx} className="p-2 rounded-12 bg-white/[0.03] border border-white/[0.05] flex items-center justify-between text-xs">
                   <span className="text-white font-medium truncate max-w-[150px]">{s.message || s.label}</span>
-                  <Badge variant="mauve" size="sm">{s.type || 'SIGNAL'}</Badge>
+                  <Badge variant="accent" size="sm">{s.type || 'SIGNAL'}</Badge>
                 </div>
               ))
             ) : (
@@ -319,13 +319,13 @@ export function StockDetailView() {
           <div className="grid grid-cols-2 gap-2 p-1 rounded-full bg-white/[0.04] border border-white/[0.08]">
             <button
               onClick={() => setTradeAction('BUY')}
-              className={clsx('py-1.5 text-xs font-semibold rounded-full', tradeAction === 'BUY' ? 'bg-trade-green/20 text-trade-green' : 'text-muted')}
+              className={clsx('py-1.5 text-xs font-semibold rounded-full', tradeAction === 'BUY' ? 'bg-gain/20 text-gain' : 'text-muted')}
             >
               Buy
             </button>
             <button
               onClick={() => setTradeAction('SELL')}
-              className={clsx('py-1.5 text-xs font-semibold rounded-full', tradeAction === 'SELL' ? 'bg-trade-red/20 text-trade-red' : 'text-muted')}
+              className={clsx('py-1.5 text-xs font-semibold rounded-full', tradeAction === 'SELL' ? 'bg-loss/20 text-loss' : 'text-muted')}
             >
               Sell
             </button>
@@ -351,11 +351,11 @@ export function StockDetailView() {
             </div>
             <div className="flex justify-between text-muted border-t border-white/[0.06] pt-1.5">
               <span>Total Required:</span>
-              <span className="text-mauve font-bold">{formatINR(Number(currentPrice) * quantity * 1.0005)}</span>
+              <span className="text-accent font-bold">{formatINR(Number(currentPrice) * quantity * 1.0005)}</span>
             </div>
           </div>
 
-          {actionMessage && <p className="text-xs text-center text-mauve font-medium">{actionMessage}</p>}
+          {actionMessage && <p className="text-xs text-center text-accent font-medium">{actionMessage}</p>}
 
           <div className="flex space-x-3 pt-2">
             <Button variant="ghost" className="flex-1" onClick={() => setTradeModalOpen(false)}>Cancel</Button>
@@ -403,7 +403,7 @@ export function StockDetailView() {
             onChange={(e) => setTargetMode(e.target.value)}
           />
 
-          {actionMessage && <p className="text-xs text-center text-mauve font-medium">{actionMessage}</p>}
+          {actionMessage && <p className="text-xs text-center text-accent font-medium">{actionMessage}</p>}
 
           <div className="flex space-x-3 pt-2">
             <Button variant="ghost" className="flex-1" onClick={() => setTargetModalOpen(false)}>Cancel</Button>

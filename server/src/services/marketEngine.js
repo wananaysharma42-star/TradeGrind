@@ -207,6 +207,7 @@ export class MarketEngine extends EventEmitter {
     });
     await this._refreshHolderCounts();
 
+    const cash = user.virtualBalance;
     let holdingsValue = 0;
     const formattedHoldings = mapped.map((h) => {
       const st = this.states.get(h.stockId);
@@ -214,22 +215,33 @@ export class MarketEngine extends EventEmitter {
       const val = h.quantity * price;
       holdingsValue += val;
       const cost = h.quantity * h.avgBuyPrice;
-      const pnlPercent = cost > 0 ? ((val - cost) / cost) * 100 : 0;
+      const pnl = val - cost;
+      const pnlPercent = cost > 0 ? (pnl / cost) * 100 : 0;
       return {
         stockId: h.stockId,
         symbol: st?.symbol,
         quantity: h.quantity,
         price: round2(price),
+        currentPrice: round2(price),
         value: round2(val),
-        pnlPercent: round2(pnlPercent)
+        marketValue: round2(val),
+        currentValue: round2(val),
+        pnl: round2(pnl),
+        unrealizedPnL: round2(pnl),
+        pnlPercent: round2(pnlPercent),
+        unrealizedPnLPercent: round2(pnlPercent)
       };
     });
 
-    const cash = user.virtualBalance;
     const finalTotal = cash + holdingsValue;
+    formattedHoldings.forEach((h) => {
+      h.allocationPercent = finalTotal > 0 ? round2((h.value / finalTotal) * 100) : 0;
+    });
+
     const dayPnL = finalTotal - dayStartValue;
     const totalInvested = mapped.reduce((acc, h) => acc + (h.quantity * h.avgBuyPrice), 0);
     const totalUnrealizedPnl = holdingsValue - totalInvested;
+    const totalUnrealizedPnlPercent = totalInvested > 0 ? (totalUnrealizedPnl / totalInvested) * 100 : 0;
     const snapshot = {
       totalValue: round2(finalTotal),
       totalPortfolioValue: round2(finalTotal),
@@ -239,6 +251,7 @@ export class MarketEngine extends EventEmitter {
       totalHoldingsValue: round2(holdingsValue),
       dayPnL: round2(dayPnL),
       totalUnrealizedPnl: round2(totalUnrealizedPnl),
+      totalUnrealizedPnlPercent: round2(totalUnrealizedPnlPercent),
       holdings: formattedHoldings
     };
 
@@ -632,6 +645,7 @@ export class MarketEngine extends EventEmitter {
   _emitPortfolios() {
     if (!this.io) return;
     for (const [userId, cache] of this.connectedCustomers.entries()) {
+      const cash = cache.cash;
       let holdingsValue = 0;
       const holdings = cache.holdings.map((h) => {
         const st = this.states.get(h.stockId);
@@ -639,21 +653,33 @@ export class MarketEngine extends EventEmitter {
         const value = h.quantity * price;
         holdingsValue += value;
         const cost = h.quantity * h.avgBuyPrice;
-        const pnlPercent = cost > 0 ? ((value - cost) / cost) * 100 : 0;
+        const pnl = value - cost;
+        const pnlPercent = cost > 0 ? (pnl / cost) * 100 : 0;
         return {
           stockId: h.stockId,
           symbol: st?.symbol,
           quantity: h.quantity,
           price: round2(price),
+          currentPrice: round2(price),
           value: round2(value),
-          pnlPercent: round2(pnlPercent)
+          marketValue: round2(value),
+          currentValue: round2(value),
+          pnl: round2(pnl),
+          unrealizedPnL: round2(pnl),
+          pnlPercent: round2(pnlPercent),
+          unrealizedPnLPercent: round2(pnlPercent)
         };
       });
-      const cash = cache.cash;
+
       const totalValue = cash + holdingsValue;
+      holdings.forEach((h) => {
+        h.allocationPercent = totalValue > 0 ? round2((h.value / totalValue) * 100) : 0;
+      });
+
       const dayPnL = totalValue - cache.dayStartValue;
       const totalCostBasis = cache.holdings.reduce((acc, h) => acc + (h.quantity * h.avgBuyPrice), 0);
       const totalUnrealizedPnl = holdingsValue - totalCostBasis;
+      const totalUnrealizedPnlPercent = totalCostBasis > 0 ? (totalUnrealizedPnl / totalCostBasis) * 100 : 0;
       this.io.to(`user:${userId}`).emit('portfolio:update', {
         totalValue: round2(totalValue),
         totalPortfolioValue: round2(totalValue),
@@ -663,6 +689,7 @@ export class MarketEngine extends EventEmitter {
         totalHoldingsValue: round2(holdingsValue),
         dayPnL: round2(dayPnL),
         totalUnrealizedPnl: round2(totalUnrealizedPnl),
+        totalUnrealizedPnlPercent: round2(totalUnrealizedPnlPercent),
         holdings
       });
     }

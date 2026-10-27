@@ -26,7 +26,7 @@ export function ProbabilityAnalysisView() {
   const targetsFromRedux = useSelector((state) => state.targets.targets);
 
   const [selectedStockId, setSelectedStockId] = useState('');
-  const [targetPrice, setTargetPrice] = useState(120);
+  const [targetPrice, setTargetPrice] = useState(0);
   const [deadlineDays, setDeadlineDays] = useState(15);
   const [mode, setMode] = useState('touch'); // 'touch' | 'terminal'
   const [nPaths, setNPaths] = useState(3000);
@@ -36,7 +36,7 @@ export function ProbabilityAnalysisView() {
   const [methodologyOpen, setMethodologyOpen] = useState(false);
 
   // What-if sliders state (debounced 200ms)
-  const [whatIfTarget, setWhatIfTarget] = useState(120);
+  const [whatIfTarget, setWhatIfTarget] = useState(0);
   const [whatIfDays, setWhatIfDays] = useState(15);
   const [whatIfGrid, setWhatIfGrid] = useState(null);
   const [whatIfTargetsList, setWhatIfTargetsList] = useState([]);
@@ -46,12 +46,35 @@ export function ProbabilityAnalysisView() {
   // Active targets list
   const [activeTargets, setActiveTargets] = useState([]);
 
-  // Default selected stock
+  // Selected stock object
+  const selectedStock = stocks.find((s) => (s._id || s.id || s.symbol) === selectedStockId) || stocks[0];
+  const livePrice = selectedStock?.currentPrice || selectedStock?.price || 1000;
+
+  // Default selected stock and dynamic prices initialization
   useEffect(() => {
     if (stocks.length > 0 && !selectedStockId) {
-      setSelectedStockId(stocks[0]._id || stocks[0].id || stocks[0].symbol);
+      const first = stocks[0];
+      const sId = first._id || first.id || first.symbol;
+      const p = first.currentPrice || first.price || 1000;
+      const initialTg = Math.round(p * 1.05 * 10) / 10;
+      setSelectedStockId(sId);
+      setTargetPrice(initialTg);
+      setWhatIfTarget(initialTg);
     }
   }, [stocks, selectedStockId]);
+
+  // When selectedStockId changes, update targetPrice to 5% above current price if uninitialized or stock changed
+  const prevStockRef = useRef(selectedStockId);
+  useEffect(() => {
+    if (selectedStock && prevStockRef.current !== selectedStockId) {
+      prevStockRef.current = selectedStockId;
+      const p = selectedStock.currentPrice || selectedStock.price || 1000;
+      const initialTg = Math.round(p * 1.05 * 10) / 10;
+      setTargetPrice(initialTg);
+      setWhatIfTarget(initialTg);
+      runAnalysis(selectedStockId, initialTg, deadlineDays, mode, nPaths);
+    }
+  }, [selectedStockId]);
 
   // Load active targets from backend
   useEffect(() => {
@@ -66,51 +89,56 @@ export function ProbabilityAnalysisView() {
     loadTargets();
   }, [targetsFromRedux]);
 
-  // Run full Monte Carlo analysis
-  const handleRunAnalysis = async () => {
-    if (!selectedStockId) return;
+  // Run full Monte Carlo analysis core function
+  const runAnalysis = async (stockId, tPrice, dDays, pMode, paths) => {
+    if (!stockId || !tPrice) return;
     setLoadingAnalysis(true);
     try {
       const res = await api.analyseTarget({
-        stockId: selectedStockId,
-        targetPrice: Number(targetPrice),
-        deadlineDays: Number(deadlineDays),
-        mode,
-        nPaths: Number(nPaths)
+        stockId,
+        targetPrice: Number(tPrice),
+        deadlineDays: Number(dDays),
+        mode: pMode,
+        nPaths: Number(paths)
       });
       setAnalysisResult(res);
-      setWhatIfTarget(Number(targetPrice));
-      setWhatIfDays(Number(deadlineDays));
+      setWhatIfTarget(Number(tPrice));
+      setWhatIfDays(Number(dDays));
     } catch (err) {
-      alert(`Analysis failed: ${err.message}`);
+      console.warn(`Analysis failed: ${err.message}`);
     } finally {
       setLoadingAnalysis(false);
     }
   };
 
+  const handleRunAnalysis = () => {
+    runAnalysis(selectedStockId, targetPrice, deadlineDays, mode, nPaths);
+  };
+
   // Debounced What-If grid query
   useEffect(() => {
-    if (!selectedStockId || !whatIfTarget) return;
+    if (!selectedStockId || !whatIfTarget || whatIfTarget <= 0) return;
 
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
     debounceTimer.current = setTimeout(async () => {
       try {
-        // Generate grid surrounding what-if parameters
         const baseTarget = Number(whatIfTarget);
+        // Proportional increments around the target price
         const tgList = [
-          Math.round(baseTarget * 0.90 * 10) / 10,
-          Math.round(baseTarget * 0.95 * 10) / 10,
+          Math.round(baseTarget * 0.92 * 10) / 10,
+          Math.round(baseTarget * 0.96 * 10) / 10,
           baseTarget,
-          Math.round(baseTarget * 1.05 * 10) / 10,
-          Math.round(baseTarget * 1.10 * 10) / 10
+          Math.round(baseTarget * 1.04 * 10) / 10,
+          Math.round(baseTarget * 1.08 * 10) / 10
         ];
         const dyList = [5, 10, 15, 20, 30];
 
         const res = await api.whatIfTargets({
           stockId: selectedStockId,
           targets: tgList,
-          days: dyList
+          days: dyList,
+          mode
         });
 
         if (res?.grid) {
@@ -119,14 +147,29 @@ export function ProbabilityAnalysisView() {
           setWhatIfDaysList(dyList);
         }
       } catch (err) {
-        // ignore
+        console.warn('What-If grid calculation failed', err);
       }
     }, 200);
 
     return () => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
-  }, [selectedStockId, whatIfTarget, whatIfDays]);
+  }, [selectedStockId, whatIfTarget, whatIfDays, mode]);
+
+  // Derived metrics from analysisResult with fallback normalization
+  const mcProb = analysisResult?.monteCarloProbability ?? analysisResult?.monteCarlo?.probability ?? 0;
+  const cfProb = analysisResult?.closedFormProbability ?? 0;
+  const ciLow = analysisResult?.confidenceInterval?.low ?? analysisResult?.monteCarlo?.ciLow ?? 0;
+  const ciHigh = analysisResult?.confidenceInterval?.high ?? analysisResult?.monteCarlo?.ciHigh ?? 0;
+  const reqReturn = analysisResult?.requiredAnnualReturn ?? 0;
+  const expTerm = analysisResult?.expectedTerminalPrice ?? analysisResult?.monteCarlo?.expectedTerminal ?? livePrice;
+  const medTerm = analysisResult?.medianTerminalPrice ?? analysisResult?.monteCarlo?.medianTerminal ?? livePrice;
+  const percentiles = analysisResult?.percentiles ?? analysisResult?.monteCarlo?.percentiles;
+
+  // Dynamic slider range based on current stock price
+  const sliderMin = Math.max(1, Math.round(livePrice * 0.70));
+  const sliderMax = Math.round(livePrice * 1.40);
+  const sliderStep = Math.max(1, Math.round(livePrice * 0.005));
 
   const targetColumns = [
     {
@@ -144,7 +187,7 @@ export function ProbabilityAnalysisView() {
     {
       header: 'Mode',
       accessor: 'mode',
-      render: (m) => <Badge variant="mauve" size="sm">{m}</Badge>
+      render: (m) => <Badge variant="accent" size="sm">{m}</Badge>
     },
     {
       header: 'Status',
@@ -164,7 +207,7 @@ export function ProbabilityAnalysisView() {
       render: (prob, row) => {
         const val = prob ?? row.lastProbability ?? 0;
         return (
-          <span className="font-mono font-bold text-mauve">
+          <span className="font-mono font-bold text-accent">
             {(val * 100).toFixed(1)}%
           </span>
         );
@@ -185,7 +228,7 @@ export function ProbabilityAnalysisView() {
         {/* Left: Input Form */}
         <GlassCard>
           <div className="flex items-center space-x-2 mb-4">
-            <Calculator className="w-4 h-4 text-mauve" />
+            <Calculator className="w-4 h-4 text-accent" />
             <h4 className="text-sm font-bold text-white">Target Parameters</h4>
           </div>
 
@@ -193,17 +236,20 @@ export function ProbabilityAnalysisView() {
             <Select
               id="analysis-stock"
               label="Select Stock"
-              options={stocks.map((s) => ({ value: s._id || s.id, label: `${s.symbol} - ${s.name}` }))}
+              options={stocks.map((s) => ({
+                value: s._id || s.id || s.symbol,
+                label: `${s.symbol} - ${s.companyName || s.name || ''} (${formatINR(s.currentPrice || s.price)})`
+              }))}
               value={selectedStockId}
               onChange={(e) => setSelectedStockId(e.target.value)}
             />
 
             <Input
               id="analysis-price"
-              label="Target Price ($)"
+              label="Target Price (₹)"
               type="number"
-              step="0.5"
-              value={targetPrice}
+              step="1"
+              value={targetPrice || ''}
               onChange={(e) => setTargetPrice(parseFloat(e.target.value) || 0)}
             />
 
@@ -260,35 +306,35 @@ export function ProbabilityAnalysisView() {
                 <div>
                   <h4 className="text-base font-bold text-white">Target Probability Estimation</h4>
                   <p className="text-xs text-muted">
-                    {analysisResult.symbol}: S₀ = ${analysisResult.currentPrice} → Target = ${analysisResult.targetPrice} in {analysisResult.deadlineDays}d
+                    {analysisResult.symbol || selectedStock?.symbol}: S₀ = {formatINR(analysisResult.currentPrice || livePrice)} → Target = {formatINR(analysisResult.targetPrice || targetPrice)} in {analysisResult.deadlineDays || deadlineDays}d
                   </p>
                 </div>
-                <Badge variant="mauve" size="sm">
-                  {analysisResult.mode.toUpperCase()} MODE
+                <Badge variant="accent" size="sm">
+                  {(analysisResult.mode || mode).toUpperCase()} MODE
                 </Badge>
               </div>
 
               {/* Gauge and Metric Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-4 items-center">
                 <div className="p-4 rounded-20 bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
-                  <ProbabilityGauge probability={analysisResult.monteCarloProbability} size={150} />
+                  <ProbabilityGauge probability={mcProb} size={150} />
                 </div>
 
                 <div className="sm:col-span-2 grid grid-cols-2 gap-3 text-xs">
                   <div className="p-3.5 rounded-16 bg-white/[0.03] border border-white/[0.06]">
                     <span className="text-muted">Monte Carlo Hit:</span>
                     <div className="text-lg font-bold text-white font-mono mt-0.5">
-                      {(analysisResult.monteCarloProbability * 100).toFixed(1)}%
+                      {(mcProb * 100).toFixed(1)}%
                     </div>
                     <span className="text-[10px] text-muted">
-                      95% CI: [{(analysisResult.confidenceInterval?.low * 100).toFixed(1)}%, {(analysisResult.confidenceInterval?.high * 100).toFixed(1)}%]
+                      95% CI: [{(ciLow * 100).toFixed(1)}%, {(ciHigh * 100).toFixed(1)}%]
                     </span>
                   </div>
 
                   <div className="p-3.5 rounded-16 bg-white/[0.03] border border-white/[0.06]">
                     <span className="text-muted">Closed-Form Probability:</span>
-                    <div className="text-lg font-bold text-mauve font-mono mt-0.5">
-                      {(analysisResult.closedFormProbability * 100).toFixed(1)}%
+                    <div className="text-lg font-bold text-accent font-mono mt-0.5">
+                      {(cfProb * 100).toFixed(1)}%
                     </div>
                     <span className="text-[10px] text-muted">Exact reflection principle</span>
                   </div>
@@ -296,7 +342,7 @@ export function ProbabilityAnalysisView() {
                   <div className="p-3.5 rounded-16 bg-white/[0.03] border border-white/[0.06]">
                     <span className="text-muted">Required Ann. Return:</span>
                     <div className="text-lg font-bold text-white font-mono mt-0.5">
-                      {((analysisResult.requiredAnnualReturn || 0.15) * 100).toFixed(1)}%
+                      {(reqReturn * 100).toFixed(1)}%
                     </div>
                     <span className="text-[10px] text-muted">To touch target</span>
                   </div>
@@ -304,16 +350,16 @@ export function ProbabilityAnalysisView() {
                   <div className="p-3.5 rounded-16 bg-white/[0.03] border border-white/[0.06]">
                     <span className="text-muted">Expected Terminal:</span>
                     <div className="text-lg font-bold text-white font-mono mt-0.5">
-                      ${Number(analysisResult.expectedTerminalPrice || analysisResult.currentPrice).toFixed(2)}
+                      {formatINR(expTerm)}
                     </div>
-                    <span className="text-[10px] text-muted">Median: ${Number(analysisResult.medianTerminalPrice || analysisResult.currentPrice).toFixed(2)}</span>
+                    <span className="text-[10px] text-muted">Median: {formatINR(medTerm)}</span>
                   </div>
                 </div>
               </div>
             </div>
           ) : (
             <div className="h-64 flex flex-col items-center justify-center text-center p-6 text-xs text-muted">
-              <Sparkles className="w-8 h-8 text-mauve mb-2 opacity-50" />
+              <Sparkles className="w-8 h-8 text-accent mb-2 opacity-50" />
               <p className="font-medium text-white">No Simulation Loaded</p>
               <p className="text-muted mt-1 max-w-xs">
                 Configure parameters on the left and click "Run Monte Carlo Analysis" to calculate probability gauge.
@@ -326,7 +372,7 @@ export function ProbabilityAnalysisView() {
             <div className="border-t border-white/[0.06] pt-3 mt-3">
               <button
                 onClick={() => setMethodologyOpen(!methodologyOpen)}
-                className="w-full flex items-center justify-between text-xs text-mauve font-semibold hover:text-mauve-light transition-colors"
+                className="w-full flex items-center justify-between text-xs text-accent font-semibold hover:text-accent-deep transition-colors"
               >
                 <span>How This Was Calculated (Methodology & Mathematical Formulas)</span>
                 {methodologyOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -340,11 +386,11 @@ export function ProbabilityAnalysisView() {
                   </div>
                   <div className="flex justify-between">
                     <span>Drift Formula:</span>
-                    <span className="text-white font-mono">{analysisResult.methodology.formulas.drift}</span>
+                    <span className="text-white font-mono">{analysisResult.methodology.formulas?.drift}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Volatility Estimator:</span>
-                    <span className="text-white font-mono">{analysisResult.methodology.formulas.volatility}</span>
+                    <span className="text-white font-mono">{analysisResult.methodology.formulas?.volatility}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Simulation Paths:</span>
@@ -358,18 +404,18 @@ export function ProbabilityAnalysisView() {
       </div>
 
       {/* Fan Chart Projection */}
-      {analysisResult?.percentiles && (
+      {percentiles && (
         <GlassCard>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h4 className="text-base font-bold text-white">Monte Carlo Fan Chart Projection</h4>
               <p className="text-xs text-muted">Percentile uncertainty bands (5th, 25th, 50th, 75th, 95th) with target reference line</p>
             </div>
-            <Badge variant="mauve" size="sm">
-              TARGET: ${analysisResult.targetPrice}
+            <Badge variant="accent" size="sm">
+              TARGET: {formatINR(analysisResult?.targetPrice || targetPrice)}
             </Badge>
           </div>
-          <FanChart percentiles={analysisResult.percentiles} targetPrice={analysisResult.targetPrice} />
+          <FanChart percentiles={percentiles} targetPrice={analysisResult?.targetPrice || targetPrice} />
         </GlassCard>
       )}
 
@@ -378,7 +424,7 @@ export function ProbabilityAnalysisView() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div>
             <div className="flex items-center space-x-2">
-              <Sliders className="w-4 h-4 text-mauve" />
+              <Sliders className="w-4 h-4 text-accent" />
               <h4 className="text-base font-bold text-white">What-If Dynamic Probability Grid</h4>
             </div>
             <p className="text-xs text-muted">Sub-300ms closed-form sensitivity matrix across prices and horizons</p>
@@ -386,15 +432,15 @@ export function ProbabilityAnalysisView() {
 
           <div className="flex items-center space-x-4 text-xs">
             <div>
-              <span className="text-muted mr-2">Target: ${whatIfTarget}</span>
+              <span className="text-muted mr-2">Target: {formatINR(whatIfTarget)}</span>
               <input
                 type="range"
-                min="50"
-                max="250"
-                step="5"
-                value={whatIfTarget}
-                onChange={(e) => setWhatIfTarget(parseFloat(e.target.value))}
-                className="accent-mauve cursor-pointer h-1.5"
+                min={sliderMin}
+                max={sliderMax}
+                step={sliderStep}
+                value={whatIfTarget || livePrice}
+                onChange={(e) => setWhatIfTarget(parseFloat(e.target.value) || livePrice)}
+                className="accent-accent cursor-pointer h-1.5"
               />
             </div>
           </div>
@@ -411,7 +457,7 @@ export function ProbabilityAnalysisView() {
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <Target className="w-4 h-4 text-mauve" />
+            <Target className="w-4 h-4 text-accent" />
             <h4 className="text-base font-bold text-white">My Active Targets</h4>
           </div>
           <Badge variant="neutral" size="sm">{activeTargets.length} Tracked</Badge>
