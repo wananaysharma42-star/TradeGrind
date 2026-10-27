@@ -237,6 +237,10 @@ export async function seedDatabase() {
         sector: c.sector,
         stockId: stock?._id
       });
+    } else {
+      compUser.passwordHash = passwordHash;
+      if (stock) compUser.stockId = stock._id;
+      await compUser.save();
     }
     if (stock && (!stock.ownerCompany || String(stock.ownerCompany) !== String(compUser._id))) {
       stock.ownerCompany = compUser._id;
@@ -246,7 +250,7 @@ export async function seedDatabase() {
 
   // 4. Seed 5 CUSTOMER Users
   const customerDefs = [
-    { name: 'Demo Trader', email: 'trader@tradesim.in', balance: 100000 },
+    { name: 'Demo Trader', email: 'trader@tradesim.in', balance: 1000000 },
     { name: 'Alex Quant', email: 'alex@tradesim.in', balance: 150000 },
     { name: 'Priya Sharma', email: 'priya@tradesim.in', balance: 120000 },
     { name: 'David Miller', email: 'david@tradesim.in', balance: 80000 },
@@ -264,6 +268,9 @@ export async function seedDatabase() {
         role: 'CUSTOMER',
         virtualBalance: c.balance
       });
+    } else {
+      cust.passwordHash = passwordHash;
+      await cust.save();
     }
     customers.push(cust);
   }
