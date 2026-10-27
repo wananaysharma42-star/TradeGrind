@@ -103,7 +103,7 @@ export function CustomerDashboard() {
       render: (pnl) => {
         const val = Number(pnl || 0);
         return (
-          <span className={val >= 0 ? 'text-trade-green font-semibold' : 'text-trade-red font-semibold'}>
+          <span className={val >= 0 ? 'text-gain font-semibold' : 'text-loss font-semibold'}>
             {val >= 0 ? '+' : ''}{formatINR(Math.abs(val))}
           </span>
         );
@@ -125,25 +125,25 @@ export function CustomerDashboard() {
           value={<NumberFlash value={totalValue} formatter={(v) => formatINR(v)} />}
           change={pnlPercent}
           subvalue="vs inception"
-          icon={<DollarSign className="w-4 h-4 text-mauve" />}
+          icon={<DollarSign className="w-4 h-4 text-accent" />}
         />
         <StatTile
           label="Cash Balance"
           value={formatINR(cashBalance)}
           subvalue="Available for trading"
-          icon={<Activity className="w-4 h-4 text-mauve" />}
+          icon={<Activity className="w-4 h-4 text-accent" />}
         />
         <StatTile
           label="Portfolio Volatility"
           value={`${((portfolioData?.portfolioVolatility || 0.16) * 100).toFixed(1)}%`}
           subvalue="Annualized 30-day"
-          icon={<TrendingUp className="w-4 h-4 text-mauve" />}
+          icon={<TrendingUp className="w-4 h-4 text-accent" />}
         />
         <StatTile
           label="Annualized Sharpe"
           value={Number(portfolioData?.sharpeRatio || 1.45).toFixed(2)}
           subvalue="rf = 6.0%"
-          icon={<Sparkles className="w-4 h-4 text-mauve" />}
+          icon={<Sparkles className="w-4 h-4 text-accent" />}
         />
       </div>
 
@@ -165,7 +165,7 @@ export function CustomerDashboard() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-sm font-semibold text-white tracking-wide">Quant Insights</h4>
-              <Badge variant="mauve" size="sm">ANALYTICS</Badge>
+              <Badge variant="accent" size="sm">ANALYTICS</Badge>
             </div>
             <div className="p-4 rounded-20 bg-white/[0.03] border border-white/[0.06] mb-4">
               <div className="text-xs text-muted">Equal-Weight Market Drift</div>
@@ -180,7 +180,7 @@ export function CustomerDashboard() {
             <div className="text-xs space-y-2.5">
               <div className="flex justify-between text-muted">
                 <span>Top Gainer:</span>
-                <span className="text-trade-green font-semibold">{homeInsights?.topMover?.symbol || 'RELIANCE'}</span>
+                <span className="text-gain font-semibold">{homeInsights?.topMover?.symbol || 'RELIANCE'}</span>
               </div>
               <div className="flex justify-between text-muted">
                 <span>Max Drawdown:</span>

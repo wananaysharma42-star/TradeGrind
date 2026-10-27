@@ -20,6 +20,7 @@ import { PerformanceChart } from '../../components/ui/Charts.jsx';
 import { DataTable } from '../../components/ui/DataTable.jsx';
 import { api } from '../../services/api.js';
 import { formatINR } from '../../utils/formatters.js';
+import { chartColors } from '../../theme/chartColors.js';
 
 export function CustomerPortfolioView() {
   const user = useSelector((state) => state.auth.user);
@@ -63,7 +64,7 @@ export function CustomerPortfolioView() {
   const totalValue = liveSummary?.totalPortfolioValue ?? liveSummary?.totalValue ?? portfolioData?.totalPortfolioValue ?? portfolioData?.totalValue ?? user?.virtualBalance ?? 1000000;
   const cashBalance = liveSummary?.cashBalance ?? liveSummary?.cash ?? portfolioData?.cashBalance ?? portfolioData?.cash ?? user?.virtualBalance ?? 1000000;
   const unrealizedPnL = liveSummary?.totalUnrealizedPnl ?? liveSummary?.totalUnrealizedPnL ?? portfolioData?.totalUnrealizedPnl ?? portfolioData?.totalUnrealizedPnL ?? 0;
-  const pnlPercent = totalValue > 0 ? (unrealizedPnL / totalValue) * 100 : 0;
+  const pnlPercent = liveSummary?.totalUnrealizedPnlPercent ?? portfolioData?.totalUnrealizedPnlPercent ?? (totalValue > 0 ? (unrealizedPnL / totalValue) * 100 : 0);
   const holdings = portfolioData?.holdings || [];
 
   // Chart data
@@ -75,7 +76,7 @@ export function CustomerPortfolioView() {
     : [{ date: 'Today', value: totalValue }];
 
   // Allocation donut data
-  const donutColors = ['#C9A6D8', '#86EFAC', '#60A5FA', '#F472B6', '#FBBF24', '#A78BFA'];
+  const donutColors = chartColors.series;
   const allocationData = holdings.map((h, idx) => ({
     name: h.symbol,
     value: Math.round(h.marketValue || (h.quantity * (h.currentPrice || 100))),
@@ -86,7 +87,7 @@ export function CustomerPortfolioView() {
     allocationData.push({
       name: 'Cash',
       value: Math.round(cashBalance),
-      color: '#4B3F50'
+      color: chartColors.border
     });
   }
 
@@ -123,13 +124,20 @@ export function CustomerPortfolioView() {
         const val = Number(pnl || row.pnl || 0);
         const isProfit = val >= 0;
         return (
-          <span className={isProfit ? 'text-trade-green font-semibold' : 'text-trade-red font-semibold'}>
+          <span className={isProfit ? 'text-gain font-semibold' : 'text-loss font-semibold'}>
             {isProfit ? '+' : ''}{formatINR(Math.abs(val))} ({isProfit ? '+' : ''}{Number(row.pnlPercent || row.unrealizedPnLPercent || 0).toFixed(2)}%)
           </span>
         );
       }
     },
-    { header: 'Weight', accessor: 'allocationPercent', render: (w) => `${Number(w || 0).toFixed(1)}%` }
+    {
+      header: 'Weight',
+      accessor: 'allocationPercent',
+      render: (w, row) => {
+        const val = Number(w ?? (totalValue > 0 ? ((row.marketValue || (row.quantity * (row.currentPrice || 0))) / totalValue) * 100 : 0));
+        return `${val.toFixed(1)}%`;
+      }
+    }
   ];
 
   const transactionColumns = [
@@ -172,7 +180,7 @@ export function CustomerPortfolioView() {
             variant="ghost"
             size="sm"
             onClick={() => navigate('/customer/analysis')}
-            icon={<Target className="w-4 h-4 text-mauve" />}
+            icon={<Target className="w-4 h-4 text-accent" />}
           >
             Probability Analysis
           </Button>
@@ -180,7 +188,7 @@ export function CustomerPortfolioView() {
             variant="ghost"
             size="sm"
             onClick={() => navigate('/customer/alerts')}
-            icon={<Bell className="w-4 h-4 text-mauve" />}
+            icon={<Bell className="w-4 h-4 text-accent" />}
           >
             Alert Rules
           </Button>
@@ -228,7 +236,7 @@ export function CustomerPortfolioView() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm font-bold text-white">Asset Allocation</h4>
-              <Badge variant="mauve" size="sm">WEIGHTS</Badge>
+              <Badge variant="accent" size="sm">WEIGHTS</Badge>
             </div>
             <div className="h-48 w-full flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
@@ -247,7 +255,7 @@ export function CustomerPortfolioView() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: 'rgba(11,7,9,0.95)', borderColor: 'rgba(255,255,255,0.15)', borderRadius: '16px', fontSize: '11px' }}
+                    contentStyle={{ backgroundColor: chartColors.tooltipBg, borderColor: chartColors.tooltipBorder, borderRadius: '16px', fontSize: '11px', color: chartColors.textPrimary }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -287,7 +295,7 @@ export function CustomerPortfolioView() {
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <History className="w-4 h-4 text-mauve" />
+            <History className="w-4 h-4 text-accent" />
             <h4 className="text-base font-bold text-white">Recent Activity Feed</h4>
           </div>
           <span className="text-xs text-muted font-mono">Last 10 Executions</span>

@@ -48,12 +48,12 @@ export function Header({ title = null, subtitle = null, onOpenSettings = null })
 
   return (
     <header className="flex flex-col md:flex-row md:items-center justify-between pb-6 gap-4">
-      {/* Welcome Greeting */}
+      {/* Welcome Greeting with Name in Gold #F5B93B */}
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">
-          Welcome, <span className="text-mauve">{user?.name || 'Trader'}</span>
+        <h1 className="text-2xl font-bold text-text tracking-tight">
+          Welcome, <span className="text-accent">{user?.name || 'Trader'}</span>
         </h1>
-        <p className="text-xs text-muted mt-0.5">
+        <p className="text-xs text-text-muted mt-0.5">
           {subtitle || 'Real-time quantitative trading simulation & high-fidelity portfolio modeling'}
         </p>
       </div>
@@ -64,11 +64,11 @@ export function Header({ title = null, subtitle = null, onOpenSettings = null })
         <div ref={dropdownRef} className="relative">
           <button
             onClick={() => setBellOpen(!bellOpen)}
-            className="relative p-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-muted hover:text-white transition-all shadow-inner-glow"
+            className="relative p-2.5 rounded-full bg-surface hover:bg-raised border border-border text-text-muted hover:text-text transition-all shadow-inner-glow focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-trade-red text-white text-[10px] font-bold flex items-center justify-center animate-pulse shadow-sm">
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-loss text-white text-[10px] font-bold flex items-center justify-center animate-pulse shadow-sm">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -76,12 +76,12 @@ export function Header({ title = null, subtitle = null, onOpenSettings = null })
 
           {/* Notifications Dropdown */}
           {bellOpen && (
-            <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-24 bg-dark-base/95 border border-white/10 backdrop-blur-glass shadow-glass z-50 overflow-hidden">
-              <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
+            <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-24 bg-raised border border-border backdrop-blur-glass shadow-glass z-50 overflow-hidden text-text">
+              <div className="flex items-center justify-between p-4 border-b border-border">
                 <div className="flex items-center space-x-2">
-                  <h4 className="text-sm font-semibold text-white">Notifications</h4>
+                  <h4 className="text-sm font-semibold text-text">Notifications</h4>
                   {unreadCount > 0 && (
-                    <span className="text-[10px] bg-mauve/20 text-mauve px-2 py-0.5 rounded-full font-bold">
+                    <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded-full font-bold">
                       {unreadCount} new
                     </span>
                   )}
@@ -89,32 +89,32 @@ export function Header({ title = null, subtitle = null, onOpenSettings = null })
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAllRead}
-                    className="text-xs text-mauve hover:text-mauve-light transition-colors"
+                    className="text-xs text-accent hover:underline transition-colors"
                   >
                     Mark all read
                   </button>
                 )}
               </div>
 
-              <div className="max-h-80 overflow-y-auto divide-y divide-white/[0.04]">
+              <div className="max-h-80 overflow-y-auto divide-y divide-border/40">
                 {notifications.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-muted">No notifications yet.</div>
+                  <div className="p-6 text-center text-xs text-text-muted">No notifications yet.</div>
                 ) : (
                   notifications.map((n) => (
                     <div
                       key={n._id}
                       onClick={() => handleNotificationClick(n)}
                       className={clsx(
-                        'p-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer',
-                        !n.read && 'bg-mauve/[0.07]'
+                        'p-3.5 hover:bg-surface/60 transition-colors cursor-pointer',
+                        !n.read && 'bg-accent/[0.06]'
                       )}
                     >
                       <div className="flex items-start justify-between">
-                        <h5 className="text-xs font-semibold text-white">{n.title}</h5>
-                        {!n.read && <div className="w-2 h-2 rounded-full bg-mauve mt-1 shrink-0 ml-2" />}
+                        <h5 className="text-xs font-semibold text-text">{n.title}</h5>
+                        {!n.read && <div className="w-2 h-2 rounded-full bg-accent mt-1 shrink-0 ml-2" />}
                       </div>
-                      <p className="text-[11px] text-muted mt-1 leading-relaxed">{n.message}</p>
-                      <div className="flex items-center space-x-1 text-[10px] text-muted/70 mt-2">
+                      <p className="text-[11px] text-text-muted mt-1 leading-relaxed">{n.message}</p>
+                      <div className="flex items-center space-x-1 text-[10px] text-text-muted/70 mt-2">
                         <Clock className="w-3 h-3" />
                         <span>{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
@@ -132,24 +132,24 @@ export function Header({ title = null, subtitle = null, onOpenSettings = null })
             if (onOpenSettings) onOpenSettings();
             else navigate('/settings');
           }}
-          className="p-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-muted hover:text-white transition-all shadow-inner-glow"
+          className="p-2.5 rounded-full bg-surface hover:bg-raised border border-border text-text-muted hover:text-text transition-all shadow-inner-glow focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
         >
           <Settings className="w-5 h-5" />
         </button>
 
         {/* User Avatar + Name + Email */}
         {user ? (
-          <div className="flex items-center space-x-3 pl-2 border-l border-white/[0.08]">
+          <div className="flex items-center space-x-3 pl-2 border-l border-border">
             <Avatar name={user.name || 'User'} size="md" />
             <div className="hidden lg:block text-left">
-              <div className="text-xs font-semibold text-white leading-tight">{user.name}</div>
-              <div className="text-[10px] text-muted leading-tight truncate max-w-[120px]">{user.email}</div>
+              <div className="text-xs font-semibold text-text leading-tight">{user.name}</div>
+              <div className="text-[10px] text-text-muted leading-tight truncate max-w-[120px]">{user.email}</div>
             </div>
           </div>
         ) : (
           <button
             onClick={() => navigate('/login')}
-            className="px-4 py-2 rounded-full text-xs font-semibold bg-mauve-gradient text-dark-base"
+            className="px-4 py-2 rounded-full text-xs font-semibold bg-accent text-[#0C0A07] hover:bg-accent/90"
           >
             Sign In
           </button>

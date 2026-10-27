@@ -2,15 +2,17 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { api } from './services/api.js';
-import { setCredentials, logout } from './store/slices/authSlice.js';
+import { setCredentials, setRehydrationComplete, logout } from './store/slices/authSlice.js';
 import { setInitialStocks } from './store/slices/marketSlice.js';
 import { setNotifications } from './store/slices/notificationSlice.js';
 import { initSocket, disconnectSocket } from './services/socket.js';
 import { useSocket } from './hooks/useSocket.js';
+import { getCookie } from './utils/cookies.js';
 
 // Layout & Guards
 import { AppShell } from './components/layout/AppShell.jsx';
 import { ProtectedRoute } from './components/auth/ProtectedRoute.jsx';
+import { PublicRoute } from './components/auth/PublicRoute.jsx';
 
 // Pages
 import { LandingPage } from './pages/LandingPage.jsx';
@@ -42,20 +44,26 @@ export default function App() {
   // Rehydrate auth via /api/auth/me on mount
   useEffect(() => {
     async function rehydrateSession() {
-      const token = localStorage.getItem('tradesim_token');
-      if (token) {
+      const token = localStorage.getItem('tradegrind_token') || localStorage.getItem('tradesim_token') || getCookie('tradegrind_token') || getCookie('tradesim_token');
+      const hasCookieSession = !!(token || getCookie('tradegrind_session') || getCookie('tradesim_session'));
+
+      if (hasCookieSession) {
         try {
-          const me = await api.getMe();
-          dispatch(setCredentials({ user: me, token }));
+          const res = await api.getMe();
+          const me = res.user || res;
+          const verifiedToken = res.token || token || getCookie('tradegrind_token') || getCookie('tradesim_token');
+          dispatch(setCredentials({ user: me, token: verifiedToken }));
         } catch (err) {
           console.warn('Session expired or invalid, logging out', err);
           dispatch(logout());
         }
+      } else {
+        dispatch(setRehydrationComplete());
       }
     }
 
     async function loadBootstrapData() {
-      const token = localStorage.getItem('tradesim_token');
+      const token = localStorage.getItem('tradegrind_token') || localStorage.getItem('tradesim_token');
       try {
         const stocks = await api.getStocks();
         if (stocks) dispatch(setInitialStocks(stocks));
@@ -79,10 +87,31 @@ export default function App() {
 
   return (
     <Routes>
-      {/* Public Pages */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      {/* Public Pages: Accessible when logged out; if valid 15-day cookie is active, auto-redirects to home */}
+      <Route
+        path="/"
+        element={
+          <PublicRoute>
+            <LandingPage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        }
+      />
 
       {/* Authenticated Customer Routes (supports both /customer/* and top-level paths) */}
       <Route

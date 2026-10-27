@@ -143,7 +143,7 @@ export function CustomerAlertsView() {
     {
       header: 'Condition Type',
       accessor: 'type',
-      render: (t) => <Badge variant="mauve" size="sm">{t}</Badge>
+      render: (t) => <Badge variant="accent" size="sm">{t}</Badge>
     },
     {
       header: 'Threshold',
@@ -172,11 +172,11 @@ export function CustomerAlertsView() {
           className={clsx(
             'inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all',
             active
-              ? 'bg-trade-green/15 text-trade-green border border-trade-green/30'
+              ? 'bg-gain/15 text-gain border border-gain/30'
               : 'bg-white/5 text-muted border border-white/10'
           )}
         >
-          {active ? <ToggleRight className="w-4 h-4 text-trade-green" /> : <ToggleLeft className="w-4 h-4 text-muted" />}
+          {active ? <ToggleRight className="w-4 h-4 text-gain" /> : <ToggleLeft className="w-4 h-4 text-muted" />}
           <span>{active ? 'Active' : 'Paused'}</span>
         </button>
       )
@@ -187,7 +187,7 @@ export function CustomerAlertsView() {
       render: (id) => (
         <button
           onClick={() => handleDeleteRule(id)}
-          className="p-1.5 rounded-full bg-white/5 hover:bg-trade-red/20 text-muted hover:text-trade-red transition-colors"
+          className="p-1.5 rounded-full bg-white/5 hover:bg-loss/20 text-muted hover:text-loss transition-colors"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -207,7 +207,7 @@ export function CustomerAlertsView() {
         {/* Rule Builder Form */}
         <GlassCard>
           <div className="flex items-center space-x-2 mb-4">
-            <Bell className="w-4 h-4 text-mauve" />
+            <Bell className="w-4 h-4 text-accent" />
             <h4 className="text-sm font-bold text-white">Create Alert Rule</h4>
           </div>
 
@@ -254,7 +254,7 @@ export function CustomerAlertsView() {
             />
 
             {createMessage && (
-              <p className="text-xs text-center text-mauve font-medium py-1">{createMessage}</p>
+              <p className="text-xs text-center text-accent font-medium py-1">{createMessage}</p>
             )}
 
             <div className="flex space-x-2 pt-2">
@@ -282,7 +282,7 @@ export function CustomerAlertsView() {
                 <h4 className="text-base font-bold text-white">Historical Backtest Preview</h4>
                 <p className="text-xs text-muted">Evaluates draft rule across the last 30 simulated days of daily candles</p>
               </div>
-              <Badge variant="mauve" size="sm">PREVIEW</Badge>
+              <Badge variant="accent" size="sm">PREVIEW</Badge>
             </div>
 
             {previewResult ? (
@@ -306,7 +306,7 @@ export function CustomerAlertsView() {
                       <div key={idx} className="p-2.5 rounded-14 bg-white/[0.02] border border-white/[0.05] flex items-center justify-between text-xs">
                         <span className="font-semibold text-white">Day {trig.simDay}</span>
                         <span className="text-muted">High: ${trig.high?.toFixed(2)} • Low: ${trig.low?.toFixed(2)}</span>
-                        <span className="font-mono text-mauve">${trig.price?.toFixed(2)}</span>
+                        <span className="font-mono text-accent">${trig.price?.toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
@@ -318,7 +318,7 @@ export function CustomerAlertsView() {
               </div>
             ) : (
               <div className="h-48 flex flex-col items-center justify-center text-center text-xs text-muted">
-                <PlayCircle className="w-8 h-8 text-mauve mb-2 opacity-50" />
+                <PlayCircle className="w-8 h-8 text-accent mb-2 opacity-50" />
                 <p className="text-white font-medium">No Draft Preview Run</p>
                 <p className="text-muted mt-1 max-w-xs">
                   Fill in condition parameters on the left and click "Backtest Preview" to check historical trigger frequency.
@@ -346,7 +346,7 @@ export function CustomerAlertsView() {
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <Bell className="w-4 h-4 text-mauve" />
+            <Bell className="w-4 h-4 text-accent" />
             <h4 className="text-base font-bold text-white">Notification History</h4>
             {unreadCount > 0 && (
               <Badge variant="negative" size="sm">{unreadCount} Unread</Badge>
@@ -385,13 +385,13 @@ export function CustomerAlertsView() {
                   'p-4 rounded-16 border transition-all cursor-pointer flex items-start justify-between',
                   n.read
                     ? 'bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.04]'
-                    : 'bg-mauve/[0.08] border-mauve/30 shadow-sm'
+                    : 'bg-accent/[0.08] border-accent/30 shadow-sm'
                 )}
               >
                 <div>
                   <div className="flex items-center space-x-2">
                     <h5 className="text-sm font-semibold text-white">{n.title}</h5>
-                    {!n.read && <Badge variant="mauve" size="sm">NEW</Badge>}
+                    {!n.read && <Badge variant="accent" size="sm">NEW</Badge>}
                   </div>
                   <p className="text-xs text-muted mt-1 leading-relaxed">{n.message}</p>
                 </div>

@@ -18,6 +18,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 import { logout } from '../../store/slices/authSlice.js';
+import { api } from '../../services/api.js';
 
 export function Sidebar({ collapsed, setCollapsed, className = '' }) {
   const user = useSelector((state) => state.auth.user);
@@ -47,39 +48,43 @@ export function Sidebar({ collapsed, setCollapsed, className = '' }) {
         { id: 'methodology', label: 'Methodology', path: '/methodology', icon: <HelpCircle className="w-5 h-5" /> }
       ];
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await api.logout().catch(() => {});
+    } finally {
+      dispatch(logout());
+      navigate('/login');
+    }
   };
 
   return (
     <aside
       className={clsx(
-        'relative flex flex-col justify-between h-screen border-r border-glass-border bg-glass-surface backdrop-blur-glass transition-all duration-300 z-30',
+        'relative flex flex-col justify-between h-screen border-r border-border bg-glass-surface backdrop-blur-glass transition-all duration-300 z-30',
         collapsed ? 'w-20' : 'w-64',
         className
       )}
     >
       {/* Top: Logo & Toggle */}
       <div>
-        <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
+        <div className="flex items-center justify-between p-5 border-b border-border">
           <div
             onClick={() => navigate('/')}
             className="flex items-center space-x-3 cursor-pointer select-none"
           >
-            <div className="w-9 h-9 rounded-full bg-mauve-gradient flex items-center justify-center shadow-glass-glow shrink-0">
-              <span className="text-dark-base font-black text-lg">T</span>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent to-accent-deep flex items-center justify-center shadow-glass-glow shrink-0">
+              <span className="text-[#0C0A07] font-black text-lg">T</span>
             </div>
             {!collapsed && (
               <div>
-                <span className="text-base font-bold text-white tracking-wider">TRADE</span>
-                <span className="text-base font-light text-mauve ml-1">GRIND</span>
+                <span className="text-base font-bold text-text tracking-wider">Trade</span>
+                <span className="text-base font-light text-accent">Grind</span>
               </div>
             )}
           </div>
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1 rounded-full bg-white/5 hover:bg-white/10 text-muted hover:text-white transition-colors"
+            className="p-1 rounded-full bg-surface border border-border text-text-muted hover:text-text transition-colors"
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
@@ -97,18 +102,18 @@ export function Sidebar({ collapsed, setCollapsed, className = '' }) {
                 className={clsx(
                   'w-full flex items-center space-x-3.5 px-3.5 py-3 rounded-20 text-sm font-medium transition-all duration-200 group relative',
                   isActive
-                    ? 'bg-mauve-pill text-mauve border border-mauve/40 shadow-glass-glow'
-                    : 'text-muted hover:text-white hover:bg-white/[0.04]'
+                    ? 'bg-amber-pill text-accent border border-accent/35 shadow-glass-glow font-semibold'
+                    : 'text-text-muted hover:text-text hover:bg-surface/60'
                 )}
               >
-                <span className={clsx(isActive ? 'text-mauve' : 'text-muted group-hover:text-white')}>
+                <span className={clsx(isActive ? 'text-accent' : 'text-text-muted group-hover:text-text')}>
                   {item.icon}
                 </span>
                 {!collapsed && <span className="flex-1 text-left">{item.label}</span>}
                 {item.badge && (
                   <span
                     className={clsx(
-                      'px-2 py-0.5 text-[10px] font-bold rounded-full bg-trade-red text-white shadow-sm',
+                      'px-2 py-0.5 text-[10px] font-bold rounded-full bg-loss text-white shadow-sm',
                       collapsed && 'absolute top-2 right-2'
                     )}
                   >
@@ -122,17 +127,17 @@ export function Sidebar({ collapsed, setCollapsed, className = '' }) {
       </div>
 
       {/* Bottom Pinned: Settings, Support, Logout */}
-      <div className="p-3 border-t border-white/[0.06] space-y-1">
+      <div className="p-3 border-t border-border space-y-1">
         <button
           onClick={() => navigate('/settings')}
-          className="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-20 text-sm font-medium text-muted hover:text-white hover:bg-white/[0.04] transition-colors"
+          className="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-20 text-sm font-medium text-text-muted hover:text-text hover:bg-surface/60 transition-colors"
         >
           <Settings className="w-5 h-5 shrink-0" />
           {!collapsed && <span>Settings</span>}
         </button>
         <button
           onClick={() => navigate('/support')}
-          className="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-20 text-sm font-medium text-muted hover:text-white hover:bg-white/[0.04] transition-colors"
+          className="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-20 text-sm font-medium text-text-muted hover:text-text hover:bg-surface/60 transition-colors"
         >
           <HelpCircle className="w-5 h-5 shrink-0" />
           {!collapsed && <span>Support</span>}
@@ -140,7 +145,7 @@ export function Sidebar({ collapsed, setCollapsed, className = '' }) {
         {user && (
           <button
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-20 text-sm font-medium text-trade-red/80 hover:text-trade-red hover:bg-trade-red/10 transition-colors"
+            className="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-20 text-sm font-medium text-loss/80 hover:text-loss hover:bg-loss/10 transition-colors"
           >
             <LogOut className="w-5 h-5 shrink-0" />
             {!collapsed && <span>Sign Out</span>}

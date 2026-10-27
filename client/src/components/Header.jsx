@@ -29,7 +29,6 @@ export default function Header({ activeTab, setActiveTab, onExecuteCommand }) {
     const cmd = commandInput.trim();
     if (!cmd) return;
 
-    // Check for shortcut commands: e.g. "buy INFY 10", "sell TCS 5", "go portfolio"
     const lower = cmd.toLowerCase();
     if (lower.startsWith('buy ') || lower.startsWith('sell ')) {
       const parts = cmd.split(/\s+/);
@@ -52,23 +51,22 @@ export default function Header({ activeTab, setActiveTab, onExecuteCommand }) {
       return;
     }
 
-    // Otherwise use as filter
     dispatch(setSearchQuery(cmd));
   };
 
   return (
-    <header className="mb-6 space-y-4">
+    <header className="mb-6 space-y-4 text-text">
       {/* Top Bar Row */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Page Greeting */}
+        {/* Page Greeting with name in gold #F5B93B */}
         <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-white tracking-tight">
-            Welcome, <span className="text-mauve font-bold">{user?.username || 'Trader'}</span>
+          <h1 className="text-2xl md:text-3xl font-semibold text-text tracking-tight">
+            Welcome, <span className="text-accent font-bold">{user?.username || 'Trader'}</span>
           </h1>
-          <p className="text-sm text-muted mt-1 flex items-center space-x-2">
+          <p className="text-sm text-text-muted mt-1 flex items-center space-x-2">
             <span>{isCompany ? 'Corporate Stock Command' : 'Simulated Trading Floor'}</span>
-            <span className="text-white/20">•</span>
-            <span className="text-mauve-light font-medium bg-mauve-dark/40 px-2 py-0.5 rounded-full text-xs border border-mauve/20">
+            <span className="text-border">•</span>
+            <span className="text-accent font-medium bg-accent/15 px-2 py-0.5 rounded-full text-xs border border-accent/25">
               {simTime?.formatted || 'Day 1 • 09:15 AM'}
             </span>
           </p>
@@ -79,12 +77,12 @@ export default function Header({ activeTab, setActiveTab, onExecuteCommand }) {
           {/* Notifications Button */}
           <button
             onClick={() => dispatch(toggleNotificationDrawer())}
-            className="relative w-11 h-11 rounded-full glass-panel flex items-center justify-center text-muted hover:text-white hover:border-mauve/40 transition-colors shadow-glass"
+            className="relative w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-text-muted hover:text-text hover:border-accent/40 transition-colors shadow-glass"
             title="Notifications"
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-mauve text-[#0B0709] font-bold text-[11px] rounded-full flex items-center justify-center animate-pulse shadow-glass-glow">
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-loss text-white font-bold text-[11px] rounded-full flex items-center justify-center animate-pulse shadow-sm">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -93,25 +91,25 @@ export default function Header({ activeTab, setActiveTab, onExecuteCommand }) {
           {/* Settings Button */}
           <button
             onClick={() => alert(`Active Role: ${user?.role}\nSimulation Clock: ${simTime?.formatted}\nEngine: Pure JavaScript GBM (dt = 1/98280)`)}
-            className="w-11 h-11 rounded-full glass-panel flex items-center justify-center text-muted hover:text-white hover:border-mauve/40 transition-colors shadow-glass"
+            className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-text-muted hover:text-text hover:border-accent/40 transition-colors shadow-glass"
             title="Settings"
           >
             <Settings className="w-5 h-5" />
           </button>
 
           {/* User Profile Block */}
-          <div className="glass-panel px-3.5 py-1.5 flex items-center space-x-3 rounded-full border border-white/10">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-mauve-deep to-mauve flex items-center justify-center font-bold text-xs text-white uppercase shadow-glass-glow">
+          <div className="glass-panel px-3.5 py-1.5 flex items-center space-x-3 rounded-full border border-border bg-surface/70">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-accent-deep to-accent flex items-center justify-center font-bold text-xs text-[#0C0A07] uppercase shadow-glass-glow border border-accent/40">
               {user?.username ? user.username.slice(0, 2) : <User className="w-4 h-4" />}
             </div>
             <div className="hidden sm:block text-left">
-              <div className="text-xs font-semibold text-white leading-tight flex items-center space-x-1.5">
+              <div className="text-xs font-semibold text-text leading-tight flex items-center space-x-1.5">
                 <span>{user?.username || 'Trader'}</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-mauve/20 text-mauve border border-mauve/30">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-accent/20 text-accent border border-accent/30">
                   {user?.role}
                 </span>
               </div>
-              <div className="text-[11px] text-muted truncate max-w-[130px]">{user?.email || 'trader@tradesim.in'}</div>
+              <div className="text-[11px] text-text-muted truncate max-w-[130px]">{user?.email || 'trader@tradegrind.in'}</div>
             </div>
           </div>
         </div>
@@ -129,8 +127,8 @@ export default function Header({ activeTab, setActiveTab, onExecuteCommand }) {
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 ${
                   isActive
-                    ? 'glass-pill-active font-semibold shadow-glass-glow text-white'
-                    : 'glass-pill text-muted hover:text-white'
+                    ? 'glass-pill-active font-semibold shadow-glass-glow text-accent'
+                    : 'glass-pill text-text-muted hover:text-text'
                 }`}
               >
                 {tab.label}
@@ -149,11 +147,11 @@ export default function Header({ activeTab, setActiveTab, onExecuteCommand }) {
               dispatch(setSearchQuery(e.target.value));
             }}
             placeholder="Search stocks, commands (e.g. 'buy INFY 10', 'go portfolio')…"
-            className="w-full glass-input pl-4 pr-11 py-2 text-xs text-white placeholder-muted/60"
+            className="w-full glass-input pl-4 pr-11 py-2 text-xs text-text placeholder-text-muted/60 bg-surface border border-border"
           />
           <button
             type="submit"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-mauve/15 hover:bg-mauve/30 text-mauve flex items-center justify-center transition-colors"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-accent/15 hover:bg-accent/30 text-accent flex items-center justify-center transition-colors"
             title="Search or execute"
           >
             <Search className="w-3.5 h-3.5" />

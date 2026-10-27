@@ -26,7 +26,7 @@ export function MethodologyView() {
         { sym: '\\Delta t', desc: 'Time step: 1 second per tick = 1/390 simulated day = 1/98,280 trading year' },
         { sym: 'Z', desc: 'Standard normal variate N(0, 1) generated via Box-Muller transform' }
       ],
-      description: 'The foundation of TradeSim stochastic asset price generation. Ensures log returns are normally distributed and asset prices remain strictly positive.'
+      description: 'The foundation of TradeGrind stochastic asset price generation. Ensures log returns are normally distributed and asset prices remain strictly positive.'
     },
     {
       title: '2. Closed-Form Terminal Probability',
@@ -110,32 +110,32 @@ export function MethodologyView() {
   ];
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto text-text">
       {/* Banner */}
       <GlassCard className="p-8" glow>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-plum-glow/20 border border-plum-glow/40 text-plum-white text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-plum-glow" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/15 border border-accent/30 text-accent text-xs font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-accent" />
               Mathematical Proofs & Stochastic Foundations
             </div>
-            <h1 className="text-3xl font-extrabold text-plum-white tracking-tight">
-              TradeSim Quantitative Methodology
+            <h1 className="text-3xl font-extrabold text-text tracking-tight">
+              TradeGrind Quantitative Methodology
             </h1>
-            <p className="text-sm text-plum-light/80 max-w-2xl">
+            <p className="text-sm text-text-muted max-w-2xl">
               Every price movement, probability target, risk metric, and ranking score is derived from
               deterministic mathematical formulations without external heuristic bias.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="p-4 rounded-2xl bg-white/5 border border-glass-border text-center">
-              <span className="text-[11px] text-plum-light/60 block">Stochastic Engine</span>
-              <span className="text-base font-bold text-plum-white font-mono">GBM 1,000ms</span>
+            <div className="p-4 rounded-2xl bg-surface border border-border text-center">
+              <span className="text-[11px] text-text-muted block">Stochastic Engine</span>
+              <span className="text-base font-bold text-accent font-mono">GBM 1,000ms</span>
             </div>
-            <div className="p-4 rounded-2xl bg-white/5 border border-glass-border text-center">
-              <span className="text-[11px] text-plum-light/60 block">MC Precision</span>
-              <span className="text-base font-bold text-trade-green font-mono">20,000 Paths</span>
+            <div className="p-4 rounded-2xl bg-surface border border-border text-center">
+              <span className="text-[11px] text-text-muted block">MC Precision</span>
+              <span className="text-base font-bold text-gain font-mono">20,000 Paths</span>
             </div>
           </div>
         </div>
@@ -144,31 +144,31 @@ export function MethodologyView() {
       {/* Formula Cards */}
       <div className="grid grid-cols-1 gap-6">
         {formulas.map((f, idx) => (
-          <GlassCard key={idx} className="p-6 space-y-4 hover:border-plum-glow/40 transition-all">
+          <GlassCard key={idx} className="p-6 space-y-4 hover:border-accent/40 transition-all">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <h2 className="text-lg font-bold text-plum-white">{f.title}</h2>
-              <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-plum-light">
+              <h2 className="text-lg font-bold text-text">{f.title}</h2>
+              <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-surface border border-border text-text-muted">
                 {f.category}
               </span>
             </div>
 
             {/* Formula Block */}
-            <div className="p-4 rounded-2xl bg-dark-base/80 border border-glass-border font-mono text-sm text-plum-white shadow-inner overflow-x-auto">
+            <div className="p-4 rounded-2xl bg-[#0C0A07] border border-border font-mono text-sm text-accent shadow-inner overflow-x-auto">
               <code>{f.latex}</code>
             </div>
 
-            <p className="text-xs text-plum-light/90 leading-relaxed">{f.description}</p>
+            <p className="text-xs text-text-muted leading-relaxed">{f.description}</p>
 
             {/* Variable Table */}
-            <div className="pt-3 border-t border-glass-border space-y-1.5">
-              <span className="text-[11px] font-bold text-plum-light/60 uppercase tracking-wider block mb-1">
+            <div className="pt-3 border-t border-border space-y-1.5">
+              <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider block mb-1">
                 Mathematical Notation
               </span>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                 {f.variables.map((v, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 rounded-xl bg-white/[0.02]">
-                    <span className="font-mono font-bold text-plum-glow shrink-0">{v.sym}:</span>
-                    <span className="text-plum-light/80 text-[11px]">{v.desc}</span>
+                  <div key={i} className="flex items-center gap-2 p-2 rounded-xl bg-surface/50 border border-border/30">
+                    <span className="font-mono font-bold text-accent shrink-0">{v.sym}:</span>
+                    <span className="text-text-muted text-[11px]">{v.desc}</span>
                   </div>
                 ))}
               </div>
@@ -179,3 +179,5 @@ export function MethodologyView() {
     </div>
   );
 }
+
+export default MethodologyView;

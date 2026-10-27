@@ -297,11 +297,11 @@ export function MarketBrowseView() {
                         <div className="flex items-center justify-center space-x-2">
                           <button
                             onClick={(e) => handleToggleWatchlist(stock, e)}
-                            className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-muted hover:text-mauve transition-colors"
+                            className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-muted hover:text-accent transition-colors"
                             title={isWatchlisted ? 'Remove from Watchlist' : 'Add to Watchlist'}
                           >
                             {isWatchlisted ? (
-                              <BookmarkCheck className="w-4 h-4 text-mauve" />
+                              <BookmarkCheck className="w-4 h-4 text-accent" />
                             ) : (
                               <Bookmark className="w-4 h-4" />
                             )}
@@ -348,10 +348,10 @@ export function MarketBrowseView() {
                     </div>
                     <button
                       onClick={(e) => handleToggleWatchlist(stock, e)}
-                      className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-muted hover:text-mauve"
+                      className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-muted hover:text-accent"
                     >
                       {isWatchlisted ? (
-                        <BookmarkCheck className="w-4 h-4 text-mauve" />
+                        <BookmarkCheck className="w-4 h-4 text-accent" />
                       ) : (
                         <Bookmark className="w-4 h-4" />
                       )}
@@ -414,7 +414,7 @@ export function MarketBrowseView() {
               className={clsx(
                 'py-1.5 text-xs font-semibold rounded-full transition-all',
                 tradeAction === 'BUY'
-                  ? 'bg-trade-green/20 text-trade-green border border-trade-green/40 shadow-sm'
+                  ? 'bg-gain/20 text-gain border border-gain/40 shadow-sm'
                   : 'text-muted hover:text-white'
               )}
             >
@@ -425,7 +425,7 @@ export function MarketBrowseView() {
               className={clsx(
                 'py-1.5 text-xs font-semibold rounded-full transition-all',
                 tradeAction === 'SELL'
-                  ? 'bg-trade-red/20 text-trade-red border border-trade-red/40 shadow-sm'
+                  ? 'bg-loss/20 text-loss border border-loss/40 shadow-sm'
                   : 'text-muted hover:text-white'
               )}
             >
@@ -453,12 +453,12 @@ export function MarketBrowseView() {
             </div>
             <div className="flex justify-between text-muted border-t border-white/[0.06] pt-1.5">
               <span>Total Capital Required:</span>
-              <span className="font-bold text-mauve">${(orderTotal + fee).toFixed(2)}</span>
+              <span className="font-bold text-accent">${(orderTotal + fee).toFixed(2)}</span>
             </div>
           </div>
 
           {tradeMessage && (
-            <p className="text-xs text-center font-medium text-mauve">{tradeMessage}</p>
+            <p className="text-xs text-center font-medium text-accent">{tradeMessage}</p>
           )}
 
           <div className="flex space-x-3 pt-2">

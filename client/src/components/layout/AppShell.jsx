@@ -101,7 +101,7 @@ export function AppShell() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-dark-base text-white">
+    <div className="flex h-screen w-screen overflow-hidden bg-bg text-text">
       {/* Sidebar */}
       <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
 
@@ -112,7 +112,7 @@ export function AppShell() {
           <Header onOpenSettings={() => setSettingsOpen(true)} />
 
           {/* Top Pill Tabs Row + Command Bar */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-white/[0.06]">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-border">
             <PillTabs
               tabs={currentTabs}
               activeTab={activeTab}
@@ -146,27 +146,27 @@ export function AppShell() {
         subtitle={`${cmdTradePayload?.quantity} shares of ${cmdTradePayload?.symbol}`}
       >
         <div className="space-y-4">
-          <div className="p-4 rounded-16 bg-white/[0.04] border border-white/[0.08] text-xs space-y-2">
+          <div className="p-4 rounded-16 bg-surface border border-border text-xs space-y-2">
             <div className="flex justify-between">
-              <span className="text-muted">Estimated Price:</span>
-              <span className="font-semibold text-white">${cmdTradePayload?.price?.toFixed(2)}</span>
+              <span className="text-text-muted">Estimated Price:</span>
+              <span className="font-semibold text-text">₹{cmdTradePayload?.price?.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted">Order Value:</span>
-              <span className="font-semibold text-white">
-                ${((cmdTradePayload?.quantity || 0) * (cmdTradePayload?.price || 0)).toFixed(2)}
+              <span className="text-text-muted">Order Value:</span>
+              <span className="font-semibold text-text">
+                ₹{((cmdTradePayload?.quantity || 0) * (cmdTradePayload?.price || 0)).toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted">Fee (0.05%):</span>
-              <span className="font-semibold text-white">
-                ${((cmdTradePayload?.quantity || 0) * (cmdTradePayload?.price || 0) * 0.0005).toFixed(2)}
+              <span className="text-text-muted">Fee (0.05%):</span>
+              <span className="font-semibold text-text">
+                ₹{((cmdTradePayload?.quantity || 0) * (cmdTradePayload?.price || 0) * 0.0005).toFixed(2)}
               </span>
             </div>
           </div>
 
           {tradeStatus && (
-            <p className="text-xs text-center text-mauve font-medium">{tradeStatus}</p>
+            <p className="text-xs text-center text-accent font-medium">{tradeStatus}</p>
           )}
 
           <div className="flex space-x-3 pt-2">

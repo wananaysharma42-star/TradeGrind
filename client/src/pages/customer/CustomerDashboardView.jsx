@@ -64,7 +64,12 @@ export function CustomerDashboardView() {
         if (hist?.series) setPortfolioHistory(hist.series);
         if (wl) setWatchlistItems(wl);
         if (insights) setHomeInsights(insights);
-        if (trending) setTrendingStocks(trending);
+        if (trending) {
+          const trendList = Array.isArray(trending)
+            ? trending
+            : (trending.trending || trending.topMovers || []);
+          setTrendingStocks(trendList);
+        }
       } catch (err) {
         console.warn('Dashboard fetch error', err);
       }
@@ -109,7 +114,7 @@ export function CustomerDashboardView() {
   const currentTotalVal = livePortfolio?.totalPortfolioValue ?? livePortfolio?.totalValue ?? portfolioData?.totalPortfolioValue ?? portfolioData?.totalValue ?? user?.virtualBalance ?? 1000000;
   const currentCash = livePortfolio?.cashBalance ?? livePortfolio?.cash ?? portfolioData?.cashBalance ?? portfolioData?.cash ?? user?.virtualBalance ?? 1000000;
   const currentUnrealizedPnL = livePortfolio?.totalUnrealizedPnl ?? livePortfolio?.totalUnrealizedPnL ?? portfolioData?.totalUnrealizedPnl ?? portfolioData?.totalUnrealizedPnL ?? 0;
-  const pnlPct = currentTotalVal > 0 ? (currentUnrealizedPnL / currentTotalVal) * 100 : 0;
+  const pnlPct = livePortfolio?.totalUnrealizedPnlPercent ?? portfolioData?.totalUnrealizedPnlPercent ?? (currentTotalVal > 0 ? (currentUnrealizedPnL / currentTotalVal) * 100 : 0);
 
   // Chart data formatting with live 1D append support
   const chartPoints = portfolioHistory.length > 0
@@ -128,17 +133,19 @@ export function CustomerDashboardView() {
   // Rotating stock details
   const activeStripStock = stocks[activeStripIndex] || stocks[0] || null;
 
-  const rotatingMetrics = activeStripStock
-    ? homeInsights?.detailedAnalytics?.find(
-        (a) => a.symbol === activeStripStock.symbol
-      )?.metrics || {
-        estimatedAnnualizedVolatility: activeStripStock.sigma || activeStripStock.volatility || 0.20,
-        return30d: (activeStripStock.changePct || activeStripStock.dayChangePercent || 0) / 100,
-        sharpeRatio: 1.0,
-        maxDrawdown: 0.05,
-        rsi14: 50
-      }
-    : null;
+  const rotatingStockInsight = homeInsights?.detailedAnalytics?.find(
+    (a) => a.symbol === activeStripStock?.symbol
+  ) || homeInsights?.rotatingAnalyticsPanel?.find(
+    (a) => a.symbol === activeStripStock?.symbol
+  );
+
+  const rotatingMetrics = rotatingStockInsight?.metrics || {
+    estimatedAnnualizedVolatility: activeStripStock?.sigma || activeStripStock?.volatility || 0.20,
+    return30d: (activeStripStock?.changePct || activeStripStock?.dayChangePercent || 0) / 100,
+    sharpeRatio: 1.0,
+    maxDrawdown: 0.05,
+    rsi14: 50
+  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -172,8 +179,8 @@ export function CustomerDashboardView() {
                   className={clsx(
                     'inline-flex items-center text-xs font-bold px-2.5 py-0.5 rounded-full border',
                     pnlPct >= 0
-                      ? 'bg-trade-green/15 text-trade-green border-trade-green/30'
-                      : 'bg-trade-red/15 text-trade-red border-trade-red/30'
+                      ? 'bg-gain/15 text-gain border-gain/30'
+                      : 'bg-loss/15 text-loss border-loss/30'
                   )}
                 >
                   {pnlPct >= 0 ? <TrendingUp className="w-3.5 h-3.5 mr-1" /> : <TrendingDown className="w-3.5 h-3.5 mr-1" />}
@@ -193,14 +200,14 @@ export function CustomerDashboardView() {
         </GlassCard>
 
         {/* Card 2: Quant Insights Promo Card */}
-        <GlassCard className="relative overflow-hidden flex flex-col justify-between border border-mauve/30 bg-gradient-to-br from-white/[0.05] via-plum-glow/20 to-transparent" glow>
-          {/* Glowing Mauve Arc */}
-          <div className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full bg-mauve/25 blur-2xl" />
-          <div className="pointer-events-none absolute -top-10 -right-10 w-36 h-36 rounded-full border border-mauve/30 opacity-60" />
-          <div className="pointer-events-none absolute -top-16 -right-16 w-52 h-52 rounded-full border border-mauve/15 opacity-40" />
+        <GlassCard className="relative overflow-hidden flex flex-col justify-between border border-accent/30 bg-gradient-to-br from-white/[0.05] via-accent/10 to-transparent" glow>
+          {/* Glowing Amber Arc */}
+          <div className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full bg-accent/20 blur-2xl" />
+          <div className="pointer-events-none absolute -top-10 -right-10 w-36 h-36 rounded-full border border-accent/30 opacity-60" />
+          <div className="pointer-events-none absolute -top-16 -right-16 w-52 h-52 rounded-full border border-accent/15 opacity-40" />
 
           <div>
-            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-mauve/15 border border-mauve/30 text-mauve text-xs font-semibold mb-3">
+            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-accent/15 border border-accent/30 text-accent text-xs font-semibold mb-3">
               <Sparkles className="w-3.5 h-3.5" />
               <span>INSIGHTS POWERED BY MATHS</span>
             </div>
@@ -216,7 +223,7 @@ export function CustomerDashboardView() {
           <div className="mt-5 pt-3">
             <button
               onClick={() => setInsightDrawerOpen(true)}
-              className="w-full inline-flex items-center justify-center space-x-2 px-5 py-2.5 rounded-full bg-mauve-gradient text-dark-base font-bold text-xs hover:brightness-110 transition-all shadow-glass-glow cursor-pointer"
+              className="w-full inline-flex items-center justify-center space-x-2 px-5 py-2.5 rounded-full bg-amber-gradient text-bg font-bold text-xs hover:brightness-110 transition-all shadow-glass-glow cursor-pointer"
             >
               <span>Explore Quant Insights</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -249,7 +256,7 @@ export function CustomerDashboardView() {
                 </div>
               ) : (
                 watchlistItems.slice(0, 5).map((item) => {
-                  const s = item.stockId || item;
+                  const s = (typeof item.stockId === 'object' && item.stockId !== null) ? item.stockId : item;
                   const isUp = (s.changePct ?? s.dayChangePercent ?? 0) >= 0;
                   return (
                     <div
@@ -274,7 +281,7 @@ export function CustomerDashboardView() {
                         <div
                           className={clsx(
                             'text-[10px] font-semibold',
-                            isUp ? 'text-trade-green' : 'text-trade-red'
+                            isUp ? 'text-gain' : 'text-loss'
                           )}
                         >
                           {isUp ? '+' : ''}{Number(s.changePct ?? s.dayChangePercent ?? 0).toFixed(2)}%
@@ -290,7 +297,7 @@ export function CustomerDashboardView() {
           <div className="pt-3 border-t border-white/[0.06] text-right">
             <button
               onClick={() => navigate('/customer/market')}
-              className="text-xs text-mauve hover:text-mauve-light font-medium"
+              className="text-xs text-accent hover:text-accent-deep font-medium"
             >
               Browse all stocks →
             </button>
@@ -319,12 +326,13 @@ export function CustomerDashboardView() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {top4Holdings.map((h) => {
-              const isProfit = (h.unrealizedPnL || 0) >= 0;
+              const isProfit = (h.unrealizedPnL ?? h.pnl ?? 0) >= 0;
+              const hPnlPct = Number(h.unrealizedPnLPercent ?? h.pnlPercent ?? 0);
               return (
                 <div
                   key={h.symbol}
                   onClick={() => navigate(`/customer/stock/${h.stockId || h.symbol}`)}
-                  className="p-4 rounded-20 bg-white/[0.035] border border-white/[0.07] backdrop-blur-card hover:bg-white/[0.06] hover:border-mauve/30 transition-all cursor-pointer flex flex-col justify-between"
+                  className="p-4 rounded-20 bg-white/[0.035] border border-white/[0.07] backdrop-blur-card hover:bg-white/[0.06] hover:border-accent/30 transition-all cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-2.5">
@@ -335,7 +343,7 @@ export function CustomerDashboardView() {
                       </div>
                     </div>
                     <Badge variant={isProfit ? 'positive' : 'negative'} size="sm">
-                      {isProfit ? '+' : ''}{Number(h.unrealizedPnLPercent || 0).toFixed(2)}%
+                      {isProfit ? '+' : ''}{hPnlPct.toFixed(2)}%
                     </Badge>
                   </div>
                   <div>
@@ -376,13 +384,13 @@ export function CustomerDashboardView() {
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-mauve/20 border border-mauve/40 flex items-center justify-center text-mauve">
+            <div className="w-8 h-8 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-accent">
               <Activity className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
                 <h4 className="text-sm font-bold text-white">Detailed Analytics:</h4>
-                <span className="text-sm font-extrabold text-mauve">{activeStripStock?.symbol || 'STOCK'}</span>
+                <span className="text-sm font-extrabold text-accent">{activeStripStock?.symbol || 'STOCK'}</span>
                 <span className="text-xs text-muted">({activeStripStock?.name || 'Loading...'})</span>
               </div>
               <p className="text-[11px] text-muted">Slide through universe • Pauses on hover</p>
@@ -423,7 +431,7 @@ export function CustomerDashboardView() {
             <div
               className={clsx(
                 'text-base font-bold font-mono mt-0.5',
-                (rotatingMetrics?.return30d || 0) >= 0 ? 'text-trade-green' : 'text-trade-red'
+                (rotatingMetrics?.return30d || 0) >= 0 ? 'text-gain' : 'text-loss'
               )}
             >
               {rotatingMetrics ? `${(rotatingMetrics.return30d || 0) >= 0 ? '+' : ''}${((rotatingMetrics.return30d || 0) * 100).toFixed(2)}%` : '—'}
@@ -443,7 +451,7 @@ export function CustomerDashboardView() {
           </div>
           <div className="p-3 rounded-16 bg-white/[0.03] border border-white/[0.06] col-span-2 sm:col-span-1">
             <div className="text-[11px] text-muted">RSI (14)</div>
-            <div className="text-base font-bold text-mauve font-mono mt-0.5">
+            <div className="text-base font-bold text-accent font-mono mt-0.5">
               {rotatingMetrics?.rsi14 != null ? Number(rotatingMetrics.rsi14).toFixed(1) : '—'}
             </div>
           </div>
@@ -456,7 +464,7 @@ export function CustomerDashboardView() {
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4 text-trade-green" />
+            <TrendingUp className="w-4 h-4 text-gain" />
             <h4 className="text-sm font-bold text-white tracking-wide">Trending Stocks</h4>
           </div>
           <span className="text-[11px] text-muted">Ranked by 1-day change, volume & vol</span>
@@ -469,14 +477,14 @@ export function CustomerDashboardView() {
               <div
                 key={s.symbol}
                 onClick={() => navigate(`/customer/stock/${s._id || s.symbol}`)}
-                className="shrink-0 w-44 p-3.5 rounded-20 bg-white/[0.03] border border-white/[0.07] hover:border-mauve/40 hover:bg-white/[0.05] transition-all cursor-pointer flex flex-col justify-between"
+                className="shrink-0 w-44 p-3.5 rounded-20 bg-white/[0.03] border border-white/[0.07] hover:border-accent/40 hover:bg-white/[0.05] transition-all cursor-pointer flex flex-col justify-between"
               >
                 <div className="flex items-center justify-between mb-2">
                   <StockLogo symbol={s.symbol} size="sm" />
                   <span
                     className={clsx(
                       'text-xs font-bold',
-                      isUp ? 'text-trade-green' : 'text-trade-red'
+                      isUp ? 'text-gain' : 'text-loss'
                     )}
                   >
                     {isUp ? '+' : ''}{Number(s.dayChangePercent ?? s.changePct ?? 0).toFixed(2)}%
@@ -485,7 +493,7 @@ export function CustomerDashboardView() {
                 <div>
                   <div className="text-xs font-bold text-white">{s.symbol}</div>
                   <div className="text-sm font-semibold text-white font-mono mt-0.5">
-                    ${Number(s.currentPrice ?? s.price ?? 100).toFixed(2)}
+                    {formatINR(s.currentPrice ?? s.price ?? 100)}
                   </div>
                 </div>
                 {s.reason && (
@@ -510,8 +518,8 @@ export function CustomerDashboardView() {
         maxWidth="max-w-2xl"
       >
         <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-          <div className="p-4 rounded-20 bg-mauve/15 border border-mauve/30">
-            <h5 className="text-xs font-bold text-mauve uppercase tracking-wider mb-1">
+          <div className="p-4 rounded-20 bg-accent/15 border border-accent/30">
+            <h5 className="text-xs font-bold text-accent uppercase tracking-wider mb-1">
               Market Equal-Weight Model
             </h5>
             <p className="text-xs text-white leading-relaxed">
@@ -528,7 +536,7 @@ export function CustomerDashboardView() {
                     <div className="text-xs font-bold text-white">{sig.symbol}</div>
                     <div className="text-[11px] text-muted mt-0.5">{sig.message || sig.description}</div>
                   </div>
-                  <Badge variant="mauve" size="sm">
+                  <Badge variant="accent" size="sm">
                     {sig.type || 'SIGNAL'}
                   </Badge>
                 </div>
