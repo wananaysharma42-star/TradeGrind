@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const socketURL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
+const socketURL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:8009';
 
 class SocketService {
   constructor() {
@@ -13,7 +13,7 @@ class SocketService {
       return this.socket;
     }
 
-    const authToken = token || localStorage.getItem('tradesim_token');
+    const authToken = token || localStorage.getItem('tradegrind_token') || localStorage.getItem('tradesim_token');
 
     this.socket = io(socketURL, {
       auth: {

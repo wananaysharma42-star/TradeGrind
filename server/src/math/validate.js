@@ -9,7 +9,7 @@
 import { closedFormTerminalProb, closedFormTouchProb, monteCarloHitProbability } from './probability.js';
 
 console.log('========================================================================');
-console.log('       TRADESIM MATHEMATICAL VALIDATION REPORT: CLOSED-FORM VS MC       ');
+console.log('       TRADEGRIND MATHEMATICAL VALIDATION REPORT: CLOSED-FORM VS MC     ');
 console.log('========================================================================\n');
 
 const testCases = [

@@ -80,9 +80,11 @@ router.get('/home', async (req, res, next) => {
     // Last 10 simulated days insights table
     const last10Candles = candles.slice(-10);
     const last10Table = last10Candles.map((c, idx, arr) => {
-      const prevClose = idx > 0 ? arr[idx - 1].close : c.open;
+      const priorCandleIndex = candles.length - last10Candles.length + idx - 1;
+      const prevClose = priorCandleIndex >= 0 ? candles[priorCandleIndex].close : c.open;
       const dayReturn = prevClose > 0 ? (c.close - prevClose) / prevClose : 0;
-      const intradayVol = c.low > 0 ? (c.high - c.low) / c.low : 0;
+      let intradayVol = c.low > 0 ? (c.high - c.low) / c.low : 0;
+      if (intradayVol === 0 && Math.abs(dayReturn) > 0) intradayVol = Math.abs(dayReturn);
       return {
         simDay: c.simDay,
         open: Math.round(c.open * 100) / 100,
@@ -354,7 +356,7 @@ router.get('/customers', async (req, res, next) => {
         return {
           holderId: uId,
           name: h.userId?.name || 'Retail Investor',
-          email: h.userId?.email || 'investor@tradesim.com',
+          email: h.userId?.email || 'investor@tradegrind.com',
           quantity: h.quantity,
           avgBuyPrice: Math.round(h.avgBuyPrice * 100) / 100,
           currentPrice: Math.round(currentPrice * 100) / 100,
@@ -363,6 +365,7 @@ router.get('/customers', async (req, res, next) => {
           unrealizedPnLPercent: Math.round(unrealizedPnLPercent * 100) / 100,
           holdingPeriodDays,
           totalVolumeTraded,
+          firstTradeGrindDay: earliestDay,
           firstTradeSimDay: earliestDay
         };
       })

@@ -1,11 +1,12 @@
 /**
- * Centralized API service with JWT authentication and standardized error handling.
+ * Centralized API service with JWT authentication, cookie support, and standardized error handling.
  */
+import { getCookie } from '../utils/cookies.js';
 
 const BASE_URL = '/api';
 
 export async function apiRequest(endpoint, options = {}) {
-  const token = localStorage.getItem('tradesim_token');
+  const token = localStorage.getItem('tradegrind_token') || localStorage.getItem('tradesim_token') || getCookie('tradegrind_token') || getCookie('tradesim_token');
 
   const headers = {
     'Content-Type': 'application/json',
@@ -15,6 +16,7 @@ export async function apiRequest(endpoint, options = {}) {
 
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     ...options,
+    credentials: 'include',
     headers
   });
 
@@ -36,6 +38,7 @@ export const api = {
   // Auth
   login: (credentials) => apiRequest('/auth/login', { method: 'POST', body: JSON.stringify(credentials) }),
   register: (payload) => apiRequest('/auth/register', { method: 'POST', body: JSON.stringify(payload) }),
+  logout: () => apiRequest('/auth/logout', { method: 'POST' }),
   getMe: () => apiRequest('/auth/me'),
 
   // Stocks

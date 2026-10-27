@@ -13,7 +13,7 @@ export const apiClient = axios.create({
 // Request interceptor to attach JWT auth token
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('tradesim_token');
+    const token = localStorage.getItem('tradegrind_token') || localStorage.getItem('tradesim_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

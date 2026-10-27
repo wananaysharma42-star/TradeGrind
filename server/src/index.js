@@ -1,5 +1,5 @@
 /**
- * Server Entrypoint for TradeSim
+ * Server Entrypoint for TradeGrind
  * Initializes HTTP server, Express application, and Socket.io real-time engine.
  */
 import { server, app, io, marketEngine, bootstrap } from './server.js';

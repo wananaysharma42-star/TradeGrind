@@ -16,7 +16,7 @@ export function initSocket() {
   if (socket && socket.connected) return socket;
 
   const token = store.getState().auth.token;
-  const socketURL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
+  const socketURL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:8009';
 
   socket = io(socketURL, {
     auth: {

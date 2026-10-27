@@ -217,10 +217,17 @@ router.get('/stocks/trending', async (req, res, next) => {
         reasonMetric: `${(item.volatility * 100).toFixed(1)}% Annual Volatility`
       }));
 
+    const topMoversWithAliases = topMovers.map((m) => ({
+      ...m,
+      currentPrice: m.price,
+      dayChangePercent: m.changePct
+    }));
+
     res.json({
       success: true,
       data: {
-        topMovers,
+        trending: topMoversWithAliases,
+        topMovers: topMoversWithAliases,
         topVolume,
         topVolatile
       }
@@ -234,7 +241,7 @@ router.get('/stocks/trending', async (req, res, next) => {
 router.get('/insights/home', async (req, res, next) => {
   try {
     const engine = getMarketEngine();
-    const stocks = await Stock.find().limit(10).lean();
+    const stocks = await Stock.find().limit(12).lean();
 
     const topInsights = [];
     const rotatingPanels = [];
@@ -244,12 +251,39 @@ router.get('/insights/home', async (req, res, next) => {
       ? allStates.map((st) => st.sigma)
       : stocks.map((st) => st.sigma || 0.22);
 
+    const avgDrift = allStates.length > 0
+      ? allStates.reduce((acc, st) => acc + (st.mu || 0.12), 0) / allStates.length
+      : 0.12;
+    const avgVol = marketVolatilities.reduce((a, b) => a + b, 0) / (marketVolatilities.length || 1);
+
     for (const s of stocks) {
       const live = engine?.getState(String(s._id)) || engine?.getState(s.symbol);
-      const prices = live?.recentPrices?.length ? live.recentPrices : [s.previousClose, s.currentPrice];
+      const currentPrice = live ? live.price : s.currentPrice;
+
+      // Fetch up to 31 candles for 30-day return, historical drawdown, and sharpe ratio
+      const candles = await DailyCandle.find({ stockId: s._id })
+        .sort({ simDay: -1 })
+        .limit(31)
+        .lean();
+
+      const prices = candles.length > 0 ? candles.reverse().map((c) => c.close) : [currentPrice];
+      if (prices[prices.length - 1] !== currentPrice) {
+        prices.push(currentPrice);
+      }
+
+      const dailyRets = logReturns(prices);
       const rsiVal = rsi(prices, 14);
       const zScore = zScorePrice(prices, 20);
-      const currentPrice = live ? live.price : s.currentPrice;
+
+      const ret30 = prices.length >= 2
+        ? (prices[prices.length - 1] - prices[0]) / prices[0]
+        : ((live?.changePct || 0) / 100);
+
+      const mdd = maxDrawdown(prices).value;
+      const sharpe = dailyRets.length >= 2 ? sharpeRatio(dailyRets, 0.06) : 1.1;
+      const vol = dailyRets.length >= 2
+        ? sampleStd(dailyRets) * Math.sqrt(252)
+        : (live?.sigma || s.sigma || 0.22);
 
       const signals = generateQuantInsights({
         prices,
@@ -262,10 +296,21 @@ router.get('/insights/home', async (req, res, next) => {
           stockId: s._id,
           symbol: s.symbol,
           insight: signals[0].statement,
+          message: signals[0].statement,
+          description: signals[0].statement,
           category: signals[0].category,
+          type: signals[0].category?.toUpperCase() || 'SIGNAL',
           label: signals[0].label
         });
       }
+
+      const metrics = {
+        estimatedAnnualizedVolatility: Math.round(vol * 1000) / 1000,
+        return30d: Math.round(ret30 * 10000) / 10000,
+        sharpeRatio: Math.round(sharpe * 100) / 100,
+        maxDrawdown: Math.round(mdd * 1000) / 1000,
+        rsi14: Math.round(rsiVal * 10) / 10
+      };
 
       rotatingPanels.push({
         stockId: s._id,
@@ -273,9 +318,10 @@ router.get('/insights/home', async (req, res, next) => {
         name: s.name,
         sector: s.sector,
         price: Math.round(currentPrice * 100) / 100,
+        metrics,
         rsi: Math.round(rsiVal * 10) / 10,
         zScore: zScore !== null ? Math.round(zScore * 100) / 100 : 0,
-        annualizedVol: Math.round((live?.sigma || s.sigma) * 1000) / 10,
+        annualizedVol: Math.round(vol * 1000) / 10,
         signals: signals.slice(0, 3)
       });
     }
@@ -284,7 +330,13 @@ router.get('/insights/home', async (req, res, next) => {
       success: true,
       data: {
         quantInsightsCard: topInsights.slice(0, 6),
-        rotatingAnalyticsPanel: rotatingPanels
+        rotatingAnalyticsPanel: rotatingPanels,
+        detailedAnalytics: rotatingPanels,
+        marketOverview: {
+          averageDrift: Math.round(avgDrift * 1000) / 1000,
+          averageVolatility: Math.round(avgVol * 1000) / 1000
+        },
+        signals: topInsights.slice(0, 6)
       }
     });
   } catch (err) {

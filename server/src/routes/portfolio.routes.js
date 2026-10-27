@@ -114,9 +114,12 @@ router.get('/', authenticateToken, async (req, res, next) => {
         avgBuyPrice: h.avgBuyPrice,
         currentPrice: Math.round(currentPrice * 100) / 100,
         currentValue,
+        marketValue: currentValue,
         totalInvested: cost,
         pnl,
-        pnlPercent
+        pnlPercent,
+        unrealizedPnL: pnl,
+        unrealizedPnLPercent: pnlPercent
       };
     });
 
@@ -126,6 +129,11 @@ router.get('/', authenticateToken, async (req, res, next) => {
     const totalUnrealizedPnlPercent = totalInvested > 0
       ? Math.round((totalUnrealizedPnl / totalInvested) * 10000) / 100
       : 0;
+
+    // Attach allocation weight percentage to each holding
+    formattedHoldings.forEach((h) => {
+      h.allocationPercent = totalVal > 0 ? Math.round((h.currentValue / totalVal) * 10000) / 100 : 0;
+    });
 
     // Allocation percentages (cash + holdings)
     const allocations = allocationPercent(cash, holdingItemsForAlloc);

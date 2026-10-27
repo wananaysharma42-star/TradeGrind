@@ -18,7 +18,8 @@ import {
   closedFormTouchProb,
   closedFormTerminalProb,
   monteCarloHitProbability,
-  probabilityGrid
+  probabilityGrid,
+  requiredReturn
 } from '../math/probability.js';
 import { blendedParams, logReturns } from '../math/returns.js';
 import { TIME_CONFIG } from '../config/time.js';
@@ -242,6 +243,16 @@ router.post('/analyse', authenticateToken, async (req, res, next) => {
       }
     };
 
+    const reqReturn = requiredReturn(S0, validated.targetPrice, validated.deadlineDays);
+
+    const formattedPercentiles = {
+      p5: mcResult.percentiles.p5.map((p) => Math.round(p * 100) / 100),
+      p25: mcResult.percentiles.p25.map((p) => Math.round(p * 100) / 100),
+      p50: mcResult.percentiles.p50.map((p) => Math.round(p * 100) / 100),
+      p75: mcResult.percentiles.p75.map((p) => Math.round(p * 100) / 100),
+      p95: mcResult.percentiles.p95.map((p) => Math.round(p * 100) / 100)
+    };
+
     res.json({
       success: true,
       data: {
@@ -252,6 +263,15 @@ router.post('/analyse', authenticateToken, async (req, res, next) => {
         deadlineDays: validated.deadlineDays,
         mode: validated.mode,
         closedFormProbability: Math.round(closedFormProb * 10000) / 10000,
+        monteCarloProbability: Math.round(mcResult.probability * 10000) / 10000,
+        requiredAnnualReturn: Math.round(reqReturn * 10000) / 10000,
+        confidenceInterval: {
+          low: Math.round(mcResult.ciLow * 10000) / 10000,
+          high: Math.round(mcResult.ciHigh * 10000) / 10000
+        },
+        expectedTerminalPrice: Math.round(mcResult.expectedTerminal * 100) / 100,
+        medianTerminalPrice: Math.round(mcResult.medianTerminal * 100) / 100,
+        percentiles: formattedPercentiles,
         monteCarlo: {
           probability: Math.round(mcResult.probability * 10000) / 10000,
           ciLow: Math.round(mcResult.ciLow * 10000) / 10000,
@@ -259,13 +279,7 @@ router.post('/analyse', authenticateToken, async (req, res, next) => {
           expectedTerminal: Math.round(mcResult.expectedTerminal * 100) / 100,
           medianTerminal: Math.round(mcResult.medianTerminal * 100) / 100,
           meanTimeToHitDays: mcResult.meanTimeToHit ? Math.round(mcResult.meanTimeToHit * 10) / 10 : null,
-          percentiles: {
-            p5: mcResult.percentiles.p5.map((p) => Math.round(p * 100) / 100),
-            p25: mcResult.percentiles.p25.map((p) => Math.round(p * 100) / 100),
-            p50: mcResult.percentiles.p50.map((p) => Math.round(p * 100) / 100),
-            p75: mcResult.percentiles.p75.map((p) => Math.round(p * 100) / 100),
-            p95: mcResult.percentiles.p95.map((p) => Math.round(p * 100) / 100)
-          }
+          percentiles: formattedPercentiles
         },
         methodology
       }

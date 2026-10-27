@@ -1,8 +1,8 @@
 {
-  "name": "tradesim-monorepo",
+  "name": "tradegrind-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "TradeSim • Real-Time Trading Simulation Monorepo",
+  "description": "TradeGrind • Real-Time Trading Simulation Monorepo",
   "workspaces": [
     "server",
     "client"

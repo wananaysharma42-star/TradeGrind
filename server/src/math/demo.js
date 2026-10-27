@@ -37,7 +37,7 @@ const scenarios = [
 ];
 
 console.log('='.repeat(80));
-console.log('       TRADESIM QUANT MATH ENGINE: CLOSED-FORM VS MONTE CARLO DEMO');
+console.log('       TRADEGRIND QUANT MATH ENGINE: CLOSED-FORM VS MONTE CARLO DEMO');
 console.log('='.repeat(80));
 
 for (const sc of scenarios) {

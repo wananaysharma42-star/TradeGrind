@@ -248,13 +248,16 @@ export async function seedDatabase() {
     }
   }
 
-  // 4. Seed 5 CUSTOMER Users
+  // 4. Seed CUSTOMER Users
   const customerDefs = [
+    { name: 'Demo Trader', email: 'trader@tradegrind.in', balance: 1000000 },
+    { name: 'Alex Quant', email: 'alex@tradegrind.in', balance: 150000 },
+    { name: 'Priya Sharma', email: 'priya@tradegrind.in', balance: 120000 },
+    { name: 'David Miller', email: 'david@tradegrind.in', balance: 80000 },
+    { name: 'Elena Rostova', email: 'elena@tradegrind.in', balance: 200000 },
+    // Retain legacy handles for backwards compatibility
     { name: 'Demo Trader', email: 'trader@tradesim.in', balance: 1000000 },
-    { name: 'Alex Quant', email: 'alex@tradesim.in', balance: 150000 },
-    { name: 'Priya Sharma', email: 'priya@tradesim.in', balance: 120000 },
-    { name: 'David Miller', email: 'david@tradesim.in', balance: 80000 },
-    { name: 'Elena Rostova', email: 'elena@tradesim.in', balance: 200000 }
+    { name: 'Alex Quant', email: 'alex@tradesim.in', balance: 150000 }
   ];
 
   const customers = [];

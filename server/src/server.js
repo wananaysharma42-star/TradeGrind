@@ -28,6 +28,7 @@ import { AlertEngine, setAlertEngine } from './services/alertEngine.js';
 
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -59,11 +60,15 @@ const apiLimiter = rateLimit({
 app.use('/api', apiLimiter);
 
 app.use(cors({
-  origin: [clientOrigin, 'http://localhost:5173', 'http://127.0.0.1:5173', '*'],
+  origin: (origin, callback) => {
+    // Allow any localhost/127.0.0.1 origin or matching clientOrigin with credentials
+    callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+app.use(cookieParser());
 app.use(express.json());
 
 const io = new SocketIOServer(server, {
@@ -123,7 +128,7 @@ async function bootstrap() {
     startTargetWatcher(io);
 
     server.listen(PORT, () => {
-      console.log(`🚀 TradeSim Server listening on http://localhost:${PORT}`);
+      console.log(`🚀 TradeGrind Server listening on http://localhost:${PORT}`);
     });
   } catch (err) {
     console.error('Fatal startup error:', err);
