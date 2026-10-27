@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dev": "concurrently -n \"SERVER,CLIENT\" -c \"magenta.bold,cyan.bold\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
     "start": "concurrently -n \"SERVER,CLIENT\" -c \"magenta.bold,cyan.bold\" \"npm run start --prefix server\" \"npm run preview --prefix client\"",
     "test": "npm run test --prefix server",
     "seed": "npm run seed --prefix server",
@@ -16,5 +17,9 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.65.1",
+    "@rollup/rollup-linux-x64-musl": "^4.65.1"
   }
 }
