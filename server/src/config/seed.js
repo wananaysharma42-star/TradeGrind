@@ -183,7 +183,8 @@ export async function seedDatabase() {
         const high = Math.round(Math.max(open, close) * (1 + Math.random() * 0.012) * 100) / 100;
         const low = Math.round(Math.min(open, close) * (1 - Math.random() * 0.012) * 100) / 100;
         const volume = Math.floor(250000 + Math.random() * 1500000);
-        const logRet = Math.log(close / open);
+        const rawLog = (open > 0 && close > 0) ? Math.log(close / open) : 0;
+        const logRet = Number.isFinite(rawLog) ? Math.round(rawLog * 10000) / 10000 : 0;
 
         candleOps.push({
           updateOne: {

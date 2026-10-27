@@ -30,7 +30,14 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 const server = http.createServer(app);
@@ -137,8 +144,6 @@ async function bootstrap() {
     process.exit(1);
   }
 }
-
-import { fileURLToPath } from 'url';
 
 const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 
