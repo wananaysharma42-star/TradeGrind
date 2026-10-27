@@ -34,7 +34,6 @@ export function Register() {
     setLoading(true);
 
     try {
-      // Derive a ticker symbol if left empty (e.g., ACME Innovations -> ACME)
       const cleanSymbol = (symbol.trim() || companyName.replace(/[^a-zA-Z]/g, '').slice(0, 5) || name.replace(/[^a-zA-Z]/g, '').slice(0, 5) || 'TICK')
         .toUpperCase();
 
@@ -71,26 +70,26 @@ export function Register() {
   const sectors = ['Technology', 'Financial', 'Energy', 'Consumer', 'Healthcare', 'Automotive'];
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-dark-base bg-plum-radial">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-bg bg-amber-radial text-text">
       <GlassCard className="w-full max-w-lg p-8 my-8" glow>
         <div className="text-center mb-6">
-          <div className="inline-flex w-12 h-12 rounded-full bg-mauve-gradient items-center justify-center shadow-glass-glow mb-3">
-            <span className="text-dark-base font-black text-2xl">T</span>
+          <div className="inline-flex w-12 h-12 rounded-full bg-gradient-to-br from-accent to-accent-deep items-center justify-center shadow-glass-glow mb-3 text-[#0C0A07]">
+            <span className="font-black text-2xl">T</span>
           </div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Create an Account</h2>
-          <p className="text-xs text-muted mt-1">Select your simulation persona to get started</p>
+          <h2 className="text-2xl font-bold text-text tracking-tight">Create an Account</h2>
+          <p className="text-xs text-text-muted mt-1">Select your simulation persona to get started</p>
         </div>
 
-        {/* Role Toggle Pills */}
-        <div className="grid grid-cols-2 gap-2 p-1 rounded-full bg-white/[0.04] border border-white/[0.08] mb-6">
+        {/* Role Toggle Pills with Selected State in Gold */}
+        <div className="grid grid-cols-2 gap-2 p-1 rounded-full bg-surface border border-border mb-6">
           <button
             type="button"
             onClick={() => setRole('CUSTOMER')}
             className={clsx(
               'flex items-center justify-center space-x-2 py-2 rounded-full text-xs font-semibold transition-all',
               role === 'CUSTOMER'
-                ? 'bg-mauve-pill text-mauve border border-mauve/40 shadow-glass-glow'
-                : 'text-muted hover:text-white'
+                ? 'bg-amber-pill text-accent border border-accent/40 shadow-glass-glow font-bold'
+                : 'text-text-muted hover:text-text'
             )}
           >
             <User className="w-4 h-4" />
@@ -102,8 +101,8 @@ export function Register() {
             className={clsx(
               'flex items-center justify-center space-x-2 py-2 rounded-full text-xs font-semibold transition-all',
               role === 'COMPANY'
-                ? 'bg-mauve-pill text-mauve border border-mauve/40 shadow-glass-glow'
-                : 'text-muted hover:text-white'
+                ? 'bg-amber-pill text-accent border border-accent/40 shadow-glass-glow font-bold'
+                : 'text-text-muted hover:text-text'
             )}
           >
             <Building2 className="w-4 h-4" />
@@ -112,7 +111,7 @@ export function Register() {
         </div>
 
         {error && (
-          <div className="flex items-center space-x-2 p-3 rounded-16 bg-trade-red/10 border border-trade-red/30 text-trade-red text-xs mb-5">
+          <div className="flex items-center space-x-2 p-3 rounded-16 bg-loss/10 border border-loss/30 text-loss text-xs mb-5">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -132,7 +131,7 @@ export function Register() {
             id="reg-email"
             label="Email Address"
             type="email"
-            placeholder="user@tradesim.com"
+            placeholder="user@tradegrind.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -149,8 +148,8 @@ export function Register() {
           />
 
           {role === 'COMPANY' && (
-            <div className="p-4 rounded-20 bg-white/[0.03] border border-white/[0.07] space-y-4 pt-4">
-              <h4 className="text-xs font-bold text-mauve uppercase tracking-wider">Company & Risk Parameters</h4>
+            <div className="p-4 rounded-20 bg-surface border border-border space-y-4 pt-4">
+              <h4 className="text-xs font-bold text-accent uppercase tracking-wider">Company & Risk Parameters</h4>
 
               <Input
                 id="reg-company-name"
@@ -180,9 +179,9 @@ export function Register() {
 
               {/* Drift & Volatility Sliders */}
               <div>
-                <div className="flex justify-between text-xs text-muted mb-1">
-                  <span>Annualized Drift (mu)</span>
-                  <span className="font-mono text-white">{(mu * 100).toFixed(0)}%</span>
+                <div className="flex justify-between text-xs text-text-muted mb-1">
+                  <span>Annualized Drift (&mu;)</span>
+                  <span className="font-mono text-text">{(mu * 100).toFixed(0)}%</span>
                 </div>
                 <input
                   type="range"
@@ -191,14 +190,14 @@ export function Register() {
                   step="0.01"
                   value={mu}
                   onChange={(e) => setMu(parseFloat(e.target.value))}
-                  className="w-full accent-mauve bg-white/10 rounded-lg cursor-pointer h-1.5"
+                  className="w-full accent-accent bg-border rounded-lg cursor-pointer h-1.5"
                 />
               </div>
 
               <div>
-                <div className="flex justify-between text-xs text-muted mb-1">
-                  <span>Annualized Volatility (sigma)</span>
-                  <span className="font-mono text-white">{(sigma * 100).toFixed(0)}%</span>
+                <div className="flex justify-between text-xs text-text-muted mb-1">
+                  <span>Annualized Volatility (&sigma;)</span>
+                  <span className="font-mono text-text">{(sigma * 100).toFixed(0)}%</span>
                 </div>
                 <input
                   type="range"
@@ -207,7 +206,7 @@ export function Register() {
                   step="0.01"
                   value={sigma}
                   onChange={(e) => setSigma(parseFloat(e.target.value))}
-                  className="w-full accent-mauve bg-white/10 rounded-lg cursor-pointer h-1.5"
+                  className="w-full accent-accent bg-border rounded-lg cursor-pointer h-1.5"
                 />
               </div>
             </div>
@@ -224,9 +223,9 @@ export function Register() {
           </Button>
         </form>
 
-        <div className="mt-6 pt-5 border-t border-white/[0.08] text-center text-xs text-muted">
+        <div className="mt-6 pt-5 border-t border-border text-center text-xs text-text-muted">
           Already registered?{' '}
-          <Link to="/login" className="text-mauve hover:text-mauve-light font-semibold">
+          <Link to="/login" className="text-accent hover:underline font-semibold">
             Sign In Here
           </Link>
         </div>

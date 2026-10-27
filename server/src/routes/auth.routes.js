@@ -9,6 +9,35 @@ import { getMarketEngine } from '../services/marketEngine.js';
 
 const router = express.Router();
 
+export const COOKIE_OPTIONS_15D = {
+  maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+  httpOnly: true,
+  sameSite: 'lax',
+  path: '/',
+  secure: process.env.NODE_ENV === 'production'
+};
+
+export const SESSION_COOKIE_OPTIONS_15D = {
+  maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+  httpOnly: false,
+  sameSite: 'lax',
+  path: '/'
+};
+
+export function setAuthCookies(res, token) {
+  res.cookie('tradegrind_token', token, COOKIE_OPTIONS_15D);
+  res.cookie('tradegrind_session', 'active', SESSION_COOKIE_OPTIONS_15D);
+  res.cookie('tradesim_token', token, COOKIE_OPTIONS_15D);
+  res.cookie('tradesim_session', 'active', SESSION_COOKIE_OPTIONS_15D);
+}
+
+export function clearAuthCookies(res) {
+  res.clearCookie('tradegrind_token', { path: '/', httpOnly: true, sameSite: 'lax' });
+  res.clearCookie('tradegrind_session', { path: '/' });
+  res.clearCookie('tradesim_token', { path: '/', httpOnly: true, sameSite: 'lax' });
+  res.clearCookie('tradesim_session', { path: '/' });
+}
+
 // POST /api/auth/register
 router.post('/register', async (req, res, next) => {
   try {
@@ -95,8 +124,10 @@ router.post('/register', async (req, res, next) => {
       const token = jwt.sign(
         { id: newUser._id, email: newUser.email, role: newUser.role, name: newUser.name },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: '15d' }
       );
+
+      setAuthCookies(res, token);
 
       const userJson = newUser.toJSON();
       userJson.stock = newStock;
@@ -123,8 +154,10 @@ router.post('/register', async (req, res, next) => {
     const token = jwt.sign(
       { id: newUser._id, email: newUser.email, role: newUser.role, name: newUser.name },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '15d' }
     );
+
+    setAuthCookies(res, token);
 
     return res.status(201).json({
       success: true,
@@ -170,8 +203,10 @@ router.post('/login', async (req, res, next) => {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role, name: user.name },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '15d' }
     );
+
+    setAuthCookies(res, token);
 
     return res.json({
       success: true,
@@ -199,7 +234,8 @@ router.get('/me', requireAuth, async (req, res, next) => {
     res.json({
       success: true,
       data: {
-        user: user.toJSON()
+        user: user.toJSON(),
+        token: req.token
       }
     });
   } catch (err) {
@@ -209,6 +245,7 @@ router.get('/me', requireAuth, async (req, res, next) => {
 
 // POST /api/auth/logout
 router.post('/logout', (req, res) => {
+  clearAuthCookies(res);
   res.json({
     success: true,
     data: {

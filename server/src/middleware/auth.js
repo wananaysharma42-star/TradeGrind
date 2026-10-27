@@ -5,7 +5,13 @@ export const JWT_SECRET = process.env.JWT_SECRET || 'tradesim_super_secret_jwt_k
 
 export async function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  let token = authHeader && authHeader.startsWith('Bearer ')
+    ? authHeader.split(' ')[1]
+    : (authHeader || null);
+
+  if (!token && req.cookies) {
+    token = req.cookies.tradegrind_token || req.cookies.tradesim_token || req.cookies.token || null;
+  }
 
   if (!token) {
     return res.status(401).json({
@@ -30,6 +36,7 @@ export async function authenticateToken(req, res, next) {
       });
     }
 
+    req.token = token;
     req.user = user;
     next();
   } catch (err) {

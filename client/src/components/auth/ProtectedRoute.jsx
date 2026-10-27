@@ -6,12 +6,15 @@ import { useSelector } from 'react-redux';
  * ProtectedRoute - Guard checking authentication and user role.
  */
 export function ProtectedRoute({ children, allowedRole = null }) {
-  const { isAuthenticated, user, isLoading } = useSelector((state) => state.auth);
+  const { isAuthenticated, user, isLoading, isRehydrating } = useSelector((state) => state.auth);
 
-  if (isLoading) {
+  if (isRehydrating || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-dark-base text-mauve text-xs">
-        Authenticating simulation session...
+      <div className="min-h-screen flex items-center justify-center bg-bg text-accent text-xs">
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 rounded-full bg-accent animate-ping" />
+          <span>Authenticating simulation session...</span>
+        </div>
       </div>
     );
   }
