@@ -120,7 +120,7 @@ export function CompanyDashboardView() {
     {
       header: 'Sim Day',
       accessor: 'simDay',
-      render: (d) => <span className="font-mono text-plum-light font-medium">Day {d}</span>
+      render: (d) => <span className="font-mono text-muted font-medium">Day {d}</span>
     },
     {
       header: 'Open',
@@ -131,7 +131,7 @@ export function CompanyDashboardView() {
       header: 'High / Low',
       accessor: 'high',
       render: (_, row) => (
-        <span className="text-xs text-plum-light/70 font-mono">
+        <span className="text-xs text-muted font-mono">
           {formatINR(row.high)} / {formatINR(row.low)}
         </span>
       )
@@ -139,7 +139,7 @@ export function CompanyDashboardView() {
     {
       header: 'Close',
       accessor: 'close',
-      render: (v) => <span className="font-semibold text-plum-white">{formatINR(v)}</span>
+      render: (v) => <span className="font-semibold text-white">{formatINR(v)}</span>
     },
     {
       header: 'Return',
@@ -148,13 +148,13 @@ export function CompanyDashboardView() {
         const val = Number(r);
         return (
           <div className="flex items-center gap-2">
-            <span className={clsx('font-semibold text-xs', val >= 0 ? 'text-trade-green' : 'text-trade-red')}>
+            <span className={clsx('font-semibold text-xs', val >= 0 ? 'text-gain' : 'text-loss')}>
               {val >= 0 ? '+' : ''}{val.toFixed(2)}%
             </span>
             {/* Inline Mini Bar */}
             <div className="w-12 h-1.5 rounded-full bg-white/5 overflow-hidden flex items-center">
               <div
-                className={clsx('h-full rounded-full', val >= 0 ? 'bg-trade-green' : 'bg-trade-red')}
+                className={clsx('h-full rounded-full', val >= 0 ? 'bg-gain' : 'bg-loss')}
                 style={{ width: `${Math.min(100, Math.abs(val) * 10)}%` }}
               />
             </div>
@@ -167,11 +167,11 @@ export function CompanyDashboardView() {
       accessor: 'volume',
       render: (v) => (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-plum-light/90 font-mono">{Number(v).toLocaleString()}</span>
+          <span className="text-xs text-muted font-mono">{Number(v).toLocaleString()}</span>
           {/* Volume mini bar */}
           <div className="w-10 h-1.5 rounded-full bg-white/5 overflow-hidden">
             <div
-              className="h-full bg-plum-glow/60 rounded-full"
+              className="h-full bg-accent/60 rounded-full"
               style={{ width: `${Math.min(100, (Number(v) / 10000) * 100)}%` }}
             />
           </div>
@@ -181,7 +181,7 @@ export function CompanyDashboardView() {
     {
       header: 'Volatility',
       accessor: 'volatilityPercent',
-      render: (v) => <span className="text-xs font-mono text-plum-light/80">{Number(v).toFixed(2)}%</span>
+      render: (v) => <span className="text-xs font-mono text-muted">{Number(v).toFixed(2)}%</span>
     }
   ];
 
@@ -208,15 +208,15 @@ export function CompanyDashboardView() {
             <StockLogo symbol={stock?.symbol || 'CMP'} size="lg" />
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-plum-white tracking-tight">{stock?.name || 'Company Stock'}</h1>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-plum-light">
+                <h1 className="text-2xl font-bold text-white tracking-tight">{stock?.name || 'Company Stock'}</h1>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-muted">
                   {stock?.symbol}
                 </span>
-                <span className="px-2 py-0.5 rounded-md text-xs bg-plum-glow/20 text-plum-glow font-medium">
+                <span className="px-2 py-0.5 rounded-md text-xs bg-accent/15 text-accent font-medium">
                   {stock?.sector || 'Equities'}
                 </span>
               </div>
-              <p className="text-xs text-plum-light/70 mt-1">
+              <p className="text-xs text-muted mt-1">
                 Real-time stock dashboard & risk telemetry streamed from live market engine
               </p>
             </div>
@@ -224,12 +224,14 @@ export function CompanyDashboardView() {
 
           <div className="flex items-center gap-6">
             <div className="text-right">
-              <span className="text-xs text-plum-light/60 block">Live Price</span>
-              <div className="text-3xl font-extrabold text-plum-white tracking-tight">
+              <span className="text-xs text-muted block">Live Price</span>
+              <div className="text-3xl font-extrabold text-white tracking-tight">
                 <NumberFlash value={currentPrice} format={(v) => formatINR(v)} />
               </div>
               <div className="mt-0.5">
-                <Badge value={dayChangePct} isPercent />
+                <Badge variant={dayChangePct >= 0 ? 'positive' : 'negative'} size="sm">
+                  {dayChangePct >= 0 ? '+' : ''}{dayChangePct.toFixed(2)}%
+                </Badge>
               </div>
             </div>
 
@@ -239,7 +241,7 @@ export function CompanyDashboardView() {
               className={clsx('border border-glass-border', isRefreshing && 'animate-spin')}
               title="Refresh telemetry"
             >
-              <RefreshCw className="w-4 h-4 text-plum-light" />
+              <RefreshCw className="w-4 h-4 text-muted" />
             </Button>
           </div>
         </div>
@@ -248,62 +250,62 @@ export function CompanyDashboardView() {
       {/* Rank Cards & Score Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Sector Rank Card */}
-        <GlassCard className="p-5 flex items-center justify-between group hover:border-plum-glow/40 transition-all">
+        <GlassCard className="p-5 flex items-center justify-between group hover:border-accent/40 transition-all">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-trade-green/10 border border-trade-green/20 flex items-center justify-center text-trade-green">
+            <div className="w-12 h-12 rounded-2xl bg-gain/10 border border-gain/20 flex items-center justify-center text-gain">
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs text-plum-light/60 uppercase tracking-wider font-semibold">Sector Standing</span>
-              <div className="text-2xl font-extrabold text-plum-white mt-0.5">
-                #{ranks?.sectorRank || 1} <span className="text-xs text-plum-light/60 font-normal">in {stock?.sector || 'Sector'}</span>
+              <span className="text-xs text-muted uppercase tracking-wider font-semibold">Sector Standing</span>
+              <div className="text-2xl font-extrabold text-white mt-0.5">
+                #{ranks?.sectorRank || 1} <span className="text-xs text-muted font-normal">in {stock?.sector || 'Sector'}</span>
               </div>
             </div>
           </div>
           <div className="text-right">
-            <span className="text-xs text-plum-light/50">Overall Universe</span>
-            <div className="text-sm font-semibold text-plum-light">
-              #{ranks?.overallRank || 1} <span className="text-xs text-plum-light/40">of {ranks?.totalCompanies || 10}</span>
+            <span className="text-xs text-muted/80">Overall Universe</span>
+            <div className="text-sm font-semibold text-muted">
+              #{ranks?.overallRank || 1} <span className="text-xs text-muted/60">of {ranks?.totalCompanies || 10}</span>
             </div>
           </div>
         </GlassCard>
 
         {/* Quant Performance Score Card with Breakdown Tooltip */}
-        <GlassCard className="p-5 flex items-center justify-between group hover:border-plum-glow/40 transition-all relative">
+        <GlassCard className="p-5 flex items-center justify-between group hover:border-accent/40 transition-all relative">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-plum-glow/10 border border-plum-glow/20 flex items-center justify-center text-plum-glow">
+            <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
               <Sparkles className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-plum-light/60 uppercase tracking-wider font-semibold">Quant Score</span>
+                <span className="text-xs text-muted uppercase tracking-wider font-semibold">Quant Score</span>
                 {/* Tooltip trigger */}
                 <div className="group/tt relative cursor-pointer">
-                  <Info className="w-3.5 h-3.5 text-plum-light/50 hover:text-plum-white" />
-                  <div className="absolute right-0 bottom-6 hidden group-hover/tt:block w-64 p-3 bg-plum-card/95 border border-glass-border rounded-xl shadow-2xl backdrop-blur-md z-30 text-xs">
-                    <p className="font-semibold text-plum-white mb-2">Quant Score Breakdown</p>
-                    <div className="space-y-1.5 text-plum-light/80">
+                  <Info className="w-3.5 h-3.5 text-muted hover:text-white" />
+                  <div className="absolute right-0 bottom-6 hidden group-hover/tt:block w-64 p-3 bg-raised/95 border border-border rounded-xl shadow-2xl backdrop-blur-md z-30 text-xs">
+                    <p className="font-semibold text-white mb-2">Quant Score Breakdown</p>
+                    <div className="space-y-1.5 text-muted">
                       <div className="flex justify-between">
                         <span>Returns Momentum:</span>
-                        <span className="font-mono text-plum-white">
+                        <span className="font-mono text-white">
                           {Math.round((ranks?.components?.momentum || 50) * 10) / 10}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Risk Adjusted Sharpe:</span>
-                        <span className="font-mono text-plum-white">
+                        <span className="font-mono text-white">
                           {Math.round((ranks?.components?.sharpe || 50) * 10) / 10}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Drawdown Resilience:</span>
-                        <span className="font-mono text-plum-white">
+                        <span className="font-mono text-white">
                           {Math.round((ranks?.components?.drawdown || 50) * 10) / 10}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Low Volatility Bonus:</span>
-                        <span className="font-mono text-plum-white">
+                        <span className="font-mono text-white">
                           {Math.round((ranks?.components?.volatility || 50) * 10) / 10}
                         </span>
                       </div>
@@ -311,14 +313,14 @@ export function CompanyDashboardView() {
                   </div>
                 </div>
               </div>
-              <div className="text-2xl font-extrabold text-plum-white mt-0.5">
-                {ranks?.score || 72} <span className="text-xs text-plum-light/60 font-normal">/ 100</span>
+              <div className="text-2xl font-extrabold text-white mt-0.5">
+                {ranks?.score || 72} <span className="text-xs text-muted font-normal">/ 100</span>
               </div>
             </div>
           </div>
           <div className="h-2 w-28 rounded-full bg-white/5 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-plum-glow to-trade-green rounded-full"
+              className="h-full bg-gradient-to-r from-accent to-gain rounded-full"
               style={{ width: `${Math.min(100, ranks?.score || 70)}%` }}
             />
           </div>
@@ -328,36 +330,36 @@ export function CompanyDashboardView() {
       {/* Key Risk Telemetry Tiles */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <GlassCard className="p-4">
-          <span className="text-xs text-plum-light/60 font-medium">Annualised Volatility (σ)</span>
-          <div className="text-xl font-bold text-plum-white mt-1">
+          <span className="text-xs text-muted font-medium">Annualised Volatility (σ)</span>
+          <div className="text-xl font-bold text-white mt-1">
             {((risk?.estimatedVolatility || 0.22) * 100).toFixed(2)}%
           </div>
-          <span className="text-[11px] text-plum-light/50 mt-1 block">EWMA 50/50 blend</span>
+          <span className="text-[11px] text-muted/70 mt-1 block">EWMA 50/50 blend</span>
         </GlassCard>
 
         <GlassCard className="p-4">
-          <span className="text-xs text-plum-light/60 font-medium">Sharpe Ratio</span>
-          <div className="text-xl font-bold text-plum-white mt-1">
+          <span className="text-xs text-muted font-medium">Sharpe Ratio</span>
+          <div className="text-xl font-bold text-white mt-1">
             {Number(risk?.sharpeRatio || 1.15).toFixed(2)}
           </div>
-          <span className="text-[11px] text-trade-green mt-1 block font-medium">Rf = 6.0% p.a.</span>
+          <span className="text-[11px] text-gain mt-1 block font-medium">Rf = 6.0% p.a.</span>
         </GlassCard>
 
         <GlassCard className="p-4">
-          <span className="text-xs text-plum-light/60 font-medium">Max Drawdown</span>
-          <div className="text-xl font-bold text-trade-red mt-1">
+          <span className="text-xs text-muted font-medium">Max Drawdown</span>
+          <div className="text-xl font-bold text-loss mt-1">
             -{(Math.abs(risk?.maxDrawdown || 0.08) * 100).toFixed(2)}%
           </div>
-          <span className="text-[11px] text-plum-light/50 mt-1 block">Peak to trough peak</span>
+          <span className="text-[11px] text-muted/70 mt-1 block">Peak to trough peak</span>
         </GlassCard>
 
         <GlassCard className="p-4">
-          <span className="text-xs text-plum-light/60 font-medium">1-Day VaR (95%)</span>
-          <div className="text-xl font-bold text-plum-white mt-1">
-            ${Number(risk?.valueAtRisk95_1Day || 2.45).toFixed(2)}
+          <span className="text-xs text-muted font-medium">1-Day VaR (95%)</span>
+          <div className="text-xl font-bold text-white mt-1">
+            {formatINR(risk?.valueAtRisk95_1Day || 2.45)}
           </div>
-          <span className="text-[11px] text-plum-light/50 mt-1 block">
-            CVaR: ${Number(risk?.expectedShortfall95_1Day || 3.12).toFixed(2)}
+          <span className="text-[11px] text-muted/70 mt-1 block">
+            CVaR: {formatINR(risk?.expectedShortfall95_1Day || 3.12)}
           </span>
         </GlassCard>
       </div>
@@ -366,8 +368,8 @@ export function CompanyDashboardView() {
       <GlassCard className="p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-lg font-bold text-plum-white">Live Equity Curve</h2>
-            <p className="text-xs text-plum-light/60 mt-0.5">
+            <h2 className="text-lg font-bold text-white">Live Equity Curve</h2>
+            <p className="text-xs text-muted mt-0.5">
               Intraday streaming ticks & daily closing historical trajectory
             </p>
           </div>
@@ -379,7 +381,7 @@ export function CompanyDashboardView() {
                 onClick={() => setPeriod(p)}
                 className={clsx(
                   'px-3 py-1 rounded-lg text-xs font-semibold transition-all',
-                  period === p ? 'bg-plum-glow/30 text-plum-white' : 'text-plum-light/60 hover:text-plum-light'
+                  period === p ? 'bg-accent/20 text-accent' : 'text-muted hover:text-white'
                 )}
               >
                 {p}
@@ -401,12 +403,12 @@ export function CompanyDashboardView() {
       <GlassCard className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-bold text-plum-white">Last 10 Days Insights</h2>
-            <p className="text-xs text-plum-light/60 mt-0.5">
+            <h2 className="text-lg font-bold text-white">Last 10 Days Insights</h2>
+            <p className="text-xs text-muted mt-0.5">
               Simulated candle telemetry, returns distribution and daily trading volume
             </p>
           </div>
-          <span className="text-xs text-plum-light/60 font-mono">10 Sessions Logged</span>
+          <span className="text-xs text-muted font-mono">10 Sessions Logged</span>
         </div>
 
         <DataTable

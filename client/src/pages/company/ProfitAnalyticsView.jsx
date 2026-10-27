@@ -108,15 +108,15 @@ export function ProfitAnalyticsView() {
       <GlassCard className="p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-plum-white tracking-tight">Profit & Peer Analytics</h1>
-            <p className="text-xs text-plum-light/70 mt-1">
+            <h1 className="text-2xl font-bold text-white tracking-tight">Profit & Peer Analytics</h1>
+            <p className="text-xs text-muted mt-1">
               Normalized comparative performance against industry peers & Monte Carlo projection models
             </p>
           </div>
 
           {/* Peer Overlay Multi-Select */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-plum-light/60 font-semibold mr-1">Overlay Peers:</span>
+            <span className="text-xs text-muted font-semibold mr-1">Overlay Peers:</span>
             {stocks.slice(0, 5).map((s) => {
               const active = selectedPeers.includes(s.symbol);
               return (
@@ -126,8 +126,8 @@ export function ProfitAnalyticsView() {
                   className={clsx(
                     'px-2.5 py-1 rounded-xl text-xs font-semibold border transition-all',
                     active
-                      ? 'bg-plum-glow/30 border-plum-glow text-plum-white shadow-plum-sm'
-                      : 'bg-white/5 border-glass-border text-plum-light/70 hover:text-plum-light hover:border-white/20'
+                      ? 'bg-accent/20 border-accent/40 text-accent font-semibold shadow-sm'
+                      : 'bg-white/5 border-glass-border text-muted hover:text-white hover:border-white/20'
                   )}
                 >
                   {s.symbol}
@@ -144,14 +144,14 @@ export function ProfitAnalyticsView() {
           <GlassCard className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-bold text-plum-white">Rebased Performance (Base = 100)</h2>
-                <p className="text-xs text-plum-light/60 mt-0.5">
+                <h2 className="text-lg font-bold text-white">Rebased Performance (Base = 100)</h2>
+                <p className="text-xs text-muted mt-0.5">
                   Direct price return normalization starting from day 1 with brush range slider
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-block w-2.5 h-2.5 rounded-full bg-plum-glow" />
-                <span className="text-xs text-plum-light/80 font-medium">Own Stock</span>
+                <span className="inline-block w-2.5 h-2.5 rounded-full bg-accent" />
+                <span className="text-xs text-muted font-medium">Own Stock</span>
               </div>
             </div>
 
@@ -161,33 +161,33 @@ export function ProfitAnalyticsView() {
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-3 gap-4">
             <GlassCard className="p-4">
-              <span className="text-xs text-plum-light/60">Cumulative Return</span>
+              <span className="text-xs text-muted">Cumulative Return</span>
               <div
                 className={clsx(
                   'text-xl font-bold mt-1',
-                  (life?.cumulativeReturnPercent || 0) >= 0 ? 'text-trade-green' : 'text-trade-red'
+                  (life?.cumulativeReturnPercent || 0) >= 0 ? 'text-gain' : 'text-loss'
                 )}
               >
                 {(life?.cumulativeReturnPercent || 0) >= 0 ? '+' : ''}
                 {life?.cumulativeReturnPercent || 0}%
               </div>
-              <span className="text-[11px] text-plum-light/50 mt-1 block">Since listing launch</span>
+              <span className="text-[11px] text-muted/70 mt-1 block">Since listing launch</span>
             </GlassCard>
 
             <GlassCard className="p-4">
-              <span className="text-xs text-plum-light/60">Sessions Recorded</span>
-              <div className="text-xl font-bold text-plum-white mt-1">
+              <span className="text-xs text-muted">Sessions Recorded</span>
+              <div className="text-xl font-bold text-white mt-1">
                 {life?.totalDays || 30} Days
               </div>
-              <span className="text-[11px] text-plum-light/50 mt-1 block">Total candle history</span>
+              <span className="text-[11px] text-muted/70 mt-1 block">Total candle history</span>
             </GlassCard>
 
             <GlassCard className="p-4">
-              <span className="text-xs text-plum-light/60">30D Gain Probability</span>
-              <div className="text-xl font-bold text-plum-glow mt-1">
+              <span className="text-xs text-muted">30D Gain Probability</span>
+              <div className="text-xl font-bold text-accent mt-1">
                 {Math.round((fanChart?.probabilityHigher || 0.65) * 100)}%
               </div>
-              <span className="text-[11px] text-plum-light/50 mt-1 block">2,000 MC simulation paths</span>
+              <span className="text-[11px] text-muted/70 mt-1 block">2,000 MC simulation paths</span>
             </GlassCard>
           </div>
         </div>
@@ -209,24 +209,24 @@ export function ProfitAnalyticsView() {
               <div className="space-y-4">
                 <div className="p-4 rounded-2xl bg-white/5 border border-glass-border">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-plum-light/70">Probability of Gain</span>
-                    <span className="text-base font-bold text-trade-green">
+                    <span className="text-xs text-muted">Probability of Gain</span>
+                    <span className="text-base font-bold text-gain">
                       {Math.round((fanChart?.probabilityHigher || 0.65) * 100)}%
                     </span>
                   </div>
                   <div className="h-1.5 w-full bg-white/5 rounded-full mt-2 overflow-hidden">
                     <div
-                      className="h-full bg-trade-green rounded-full"
+                      className="h-full bg-gain rounded-full"
                       style={{ width: `${(fanChart?.probabilityHigher || 0.65) * 100}%` }}
                     />
                   </div>
-                  <span className="text-[10px] text-plum-light/50 mt-1.5 block">
+                  <span className="text-[10px] text-muted/60 mt-1.5 block">
                     Monte Carlo paths where terminal price &gt; S₀ over next 30 days
                   </span>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-xs text-plum-light/70 font-semibold">30-Day Fan Chart Projections</span>
+                  <span className="text-xs text-muted font-semibold">30-Day Fan Chart Projections</span>
                   <FanChart percentiles={fanChart?.percentiles} height={220} />
                 </div>
               </div>
@@ -237,18 +237,18 @@ export function ProfitAnalyticsView() {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <div className="p-3.5 rounded-xl bg-white/5 border border-glass-border flex justify-between items-center">
-                    <span className="text-xs text-plum-light/70">Total Trading Days</span>
-                    <span className="font-mono text-sm font-semibold text-plum-white">
+                    <span className="text-xs text-muted">Total Trading Days</span>
+                    <span className="font-mono text-sm font-semibold text-white">
                       {life?.totalDays || 0}
                     </span>
                   </div>
 
                   <div className="p-3.5 rounded-xl bg-white/5 border border-glass-border flex justify-between items-center">
-                    <span className="text-xs text-plum-light/70">Cumulative Return</span>
+                    <span className="text-xs text-muted">Cumulative Return</span>
                     <span
                       className={clsx(
                         'font-mono text-sm font-semibold',
-                        (life?.cumulativeReturnPercent || 0) >= 0 ? 'text-trade-green' : 'text-trade-red'
+                        (life?.cumulativeReturnPercent || 0) >= 0 ? 'text-gain' : 'text-loss'
                       )}
                     >
                       {(life?.cumulativeReturnPercent || 0) >= 0 ? '+' : ''}
@@ -257,9 +257,9 @@ export function ProfitAnalyticsView() {
                   </div>
 
                   <div className="p-3.5 rounded-xl bg-white/5 border border-glass-border flex justify-between items-center">
-                    <span className="text-xs text-plum-light/70">Current Simulation Phase</span>
-                    <span className="text-xs text-trade-green font-semibold flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-trade-green animate-pulse" />
+                    <span className="text-xs text-muted">Current Simulation Phase</span>
+                    <span className="text-xs text-gain font-semibold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-gain animate-pulse" />
                       Active Quoting
                     </span>
                   </div>
@@ -271,10 +271,10 @@ export function ProfitAnalyticsView() {
             {activeTab === 'drawdown' && (
               <div className="space-y-4">
                 <div>
-                  <span className="text-xs text-plum-light/70 font-semibold block mb-1">
+                  <span className="text-xs text-muted font-semibold block mb-1">
                     Historical Peak-to-Trough Drawdown (%)
                   </span>
-                  <p className="text-[11px] text-plum-light/50 mb-3">
+                  <p className="text-[11px] text-muted/60 mb-3">
                     Percentage drawdown from all-time highs across recorded sessions
                   </p>
                   <LiveLineChart data={drawdownChartData} height={220} />
@@ -286,10 +286,10 @@ export function ProfitAnalyticsView() {
             {activeTab === 'volatility' && (
               <div className="space-y-4">
                 <div>
-                  <span className="text-xs text-plum-light/70 font-semibold block mb-1">
+                  <span className="text-xs text-muted font-semibold block mb-1">
                     20-Day Rolling Volatility (σ Annualized %)
                   </span>
-                  <p className="text-[11px] text-plum-light/50 mb-3">
+                  <p className="text-[11px] text-muted/60 mb-3">
                     Rolling standard deviation of logarithmic returns annualized
                   </p>
                   <LiveLineChart data={volChartData} height={220} />

@@ -15,6 +15,7 @@ import { Button } from '../../components/ui/Button.jsx';
 import { DataTable } from '../../components/ui/DataTable.jsx';
 import { Histogram, LiveLineChart } from '../../components/ui/Charts.jsx';
 import { api } from '../../services/api.js';
+import { formatINR } from '../../utils/formatters.js';
 import clsx from 'clsx';
 
 export function CustomerAnalysisView() {
@@ -85,25 +86,25 @@ export function CustomerAnalysisView() {
       accessor: 'name',
       render: (name, row) => (
         <div>
-          <span className="font-semibold text-plum-white text-xs">{name}</span>
-          <span className="text-[10px] text-plum-light/60 block">{row.email}</span>
+          <span className="font-semibold text-white text-xs">{name}</span>
+          <span className="text-[10px] text-muted block">{row.email}</span>
         </div>
       )
     },
     {
       header: 'Quantity',
       accessor: 'quantity',
-      render: (q) => <span className="font-mono text-xs font-semibold text-plum-white">{Number(q).toLocaleString()} shares</span>
+      render: (q) => <span className="font-mono text-xs font-semibold text-white">{Number(q).toLocaleString()} shares</span>
     },
     {
       header: 'Avg Buy Price',
       accessor: 'avgBuyPrice',
-      render: (v) => <span className="font-mono text-xs text-plum-light">${Number(v).toFixed(2)}</span>
+      render: (v) => <span className="font-mono text-xs text-muted">{formatINR(v)}</span>
     },
     {
       header: 'Current Value',
       accessor: 'marketValue',
-      render: (v) => <span className="font-mono text-xs text-plum-white font-semibold">${Number(v).toLocaleString()}</span>
+      render: (v) => <span className="font-mono text-xs text-white font-semibold">{formatINR(v)}</span>
     },
     {
       header: 'Unrealized P&L',
@@ -113,10 +114,10 @@ export function CustomerAnalysisView() {
         const pct = Number(row.unrealizedPnLPercent);
         return (
           <div className="font-mono text-xs font-semibold">
-            <span className={val >= 0 ? 'text-trade-green' : 'text-trade-red'}>
-              {val >= 0 ? '+' : ''}${val.toFixed(2)}
+            <span className={val >= 0 ? 'text-gain' : 'text-loss'}>
+              {val >= 0 ? '+' : ''}{formatINR(Math.abs(val))}
             </span>
-            <span className={clsx('ml-1 text-[10px]', pct >= 0 ? 'text-trade-green' : 'text-trade-red')}>
+            <span className={clsx('ml-1 text-[10px]', pct >= 0 ? 'text-gain' : 'text-loss')}>
               ({pct >= 0 ? '+' : ''}{pct.toFixed(1)}%)
             </span>
           </div>
@@ -127,8 +128,8 @@ export function CustomerAnalysisView() {
       header: 'Holding Period',
       accessor: 'holdingPeriodDays',
       render: (d) => (
-        <span className="text-xs text-plum-light font-mono flex items-center gap-1">
-          <Clock className="w-3 h-3 text-plum-light/50" />
+        <span className="text-xs text-muted font-mono flex items-center gap-1">
+          <Clock className="w-3 h-3 text-muted/60" />
           {d} days
         </span>
       )
@@ -153,14 +154,14 @@ export function CustomerAnalysisView() {
       <GlassCard className="p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-plum-white tracking-tight">Customer & Shareholder Analysis</h1>
-            <p className="text-xs text-plum-light/70 mt-1">
+            <h1 className="text-2xl font-bold text-white tracking-tight">Customer & Shareholder Analysis</h1>
+            <p className="text-xs text-muted mt-1">
               Active shareholder demographics, holding periods, profit distributions, and daily transaction flows
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-plum-light/60 font-semibold mr-1">Category:</span>
+            <span className="text-xs text-muted font-semibold mr-1">Category:</span>
             <div className="flex flex-wrap items-center gap-1.5">
               {categories.map((c) => (
                 <button
@@ -169,8 +170,8 @@ export function CustomerAnalysisView() {
                   className={clsx(
                     'px-3 py-1 rounded-xl text-xs font-semibold border transition-all',
                     category === c.id
-                      ? 'bg-plum-glow/30 border-plum-glow text-plum-white shadow-plum-sm'
-                      : 'bg-white/5 border-glass-border text-plum-light/70 hover:text-plum-light hover:border-white/20'
+                      ? 'bg-accent/20 border-accent/40 text-accent font-semibold shadow-sm'
+                      : 'bg-white/5 border-glass-border text-muted hover:text-white hover:border-white/20'
                   )}
                 >
                   {c.label}
@@ -182,11 +183,11 @@ export function CustomerAnalysisView() {
 
         {/* Category Description Rule Pill */}
         <div className="mt-4 p-2.5 rounded-xl bg-white/5 border border-glass-border flex items-center justify-between text-xs">
-          <span className="text-plum-light/80">
-            <span className="text-plum-glow font-semibold uppercase tracking-wider text-[10px] mr-2">Rule Filter:</span>
+          <span className="text-muted">
+            <span className="text-accent font-semibold uppercase tracking-wider text-[10px] mr-2">Rule Filter:</span>
             {currentRuleDesc}
           </span>
-          <span className="font-mono text-plum-white font-semibold">{holders.length} match{holders.length === 1 ? '' : 'es'}</span>
+          <span className="font-mono text-white font-semibold">{holders.length} match{holders.length === 1 ? '' : 'es'}</span>
         </div>
       </GlassCard>
 
@@ -197,8 +198,8 @@ export function CustomerAnalysisView() {
           <GlassCard className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-bold text-plum-white">Shareholders Directory</h2>
-                <p className="text-xs text-plum-light/60 mt-0.5">
+                <h2 className="text-lg font-bold text-white">Shareholders Directory</h2>
+                <p className="text-xs text-muted mt-0.5">
                   Live unrealized P&L, share counts, and simulated tenure
                 </p>
               </div>
@@ -216,24 +217,24 @@ export function CustomerAnalysisView() {
         <div className="space-y-6">
           {/* Price Comparison Card */}
           <GlassCard className="p-5">
-            <h3 className="text-sm font-bold text-plum-white mb-3">Price vs Average Holder Basis</h3>
+            <h3 className="text-sm font-bold text-white mb-3">Price vs Average Holder Basis</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white/5 border border-glass-border">
-                <span className="text-[11px] text-plum-light/60 block">Live Price</span>
-                <span className="text-lg font-bold text-plum-white font-mono">
-                  ${priceComp?.currentPrice?.toFixed(2) || '0.00'}
+                <span className="text-[11px] text-muted block">Live Price</span>
+                <span className="text-lg font-bold text-white font-mono">
+                  {formatINR(priceComp?.currentPrice || 0)}
                 </span>
               </div>
               <div className="p-3 rounded-xl bg-white/5 border border-glass-border">
-                <span className="text-[11px] text-plum-light/60 block">Avg Holder Basis</span>
-                <span className="text-lg font-bold text-plum-glow font-mono">
-                  ${priceComp?.averageBuyPrice?.toFixed(2) || '0.00'}
+                <span className="text-[11px] text-muted block">Avg Holder Basis</span>
+                <span className="text-lg font-bold text-accent font-mono">
+                  {formatINR(priceComp?.averageBuyPrice || 0)}
                 </span>
               </div>
             </div>
-            <div className="mt-3 text-xs text-plum-light/70 flex justify-between items-center">
+            <div className="mt-3 text-xs text-muted flex justify-between items-center">
               <span>Overall Investor Sentiment:</span>
-              <span className={clsx('font-semibold', (priceComp?.currentPrice || 0) >= (priceComp?.averageBuyPrice || 0) ? 'text-trade-green' : 'text-trade-red')}>
+              <span className={clsx('font-semibold', (priceComp?.currentPrice || 0) >= (priceComp?.averageBuyPrice || 0) ? 'text-gain' : 'text-loss')}>
                 {(priceComp?.currentPrice || 0) >= (priceComp?.averageBuyPrice || 0) ? 'Net Profit' : 'Under Pressure'}
               </span>
             </div>
@@ -242,8 +243,8 @@ export function CustomerAnalysisView() {
           {/* Shareholder Profit Rate Histogram */}
           <GlassCard className="p-5">
             <div className="mb-2">
-              <h3 className="text-sm font-bold text-plum-white">Profit Rate Distribution</h3>
-              <p className="text-[11px] text-plum-light/60">
+              <h3 className="text-sm font-bold text-white">Profit Rate Distribution</h3>
+              <p className="text-[11px] text-muted">
                 Number of holders categorized by unrealized profit %
               </p>
             </div>
@@ -253,8 +254,8 @@ export function CustomerAnalysisView() {
           {/* Net Flow Trend (Daily Net Volume Chart) */}
           <GlassCard className="p-5">
             <div className="mb-2">
-              <h3 className="text-sm font-bold text-plum-white">Net Volume Flow (Buys - Sells)</h3>
-              <p className="text-[11px] text-plum-light/60">
+              <h3 className="text-sm font-bold text-white">Net Volume Flow (Buys - Sells)</h3>
+              <p className="text-[11px] text-muted">
                 Daily accumulated retail share flow across simulated sessions
               </p>
             </div>

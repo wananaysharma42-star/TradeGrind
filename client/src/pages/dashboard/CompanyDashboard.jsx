@@ -52,7 +52,7 @@ export function CompanyDashboard() {
       header: 'Return',
       accessor: 'returnPercent',
       render: (r) => (
-        <span className={Number(r) >= 0 ? 'text-trade-green font-semibold' : 'text-trade-red font-semibold'}>
+        <span className={Number(r) >= 0 ? 'text-gain font-semibold' : 'text-loss font-semibold'}>
           {Number(r) >= 0 ? '+' : ''}{Number(r).toFixed(2)}%
         </span>
       )
@@ -69,25 +69,25 @@ export function CompanyDashboard() {
           label="Live Stock Price"
           value={<NumberFlash value={stock?.currentPrice || 100} formatter={(v) => formatINR(v)} />}
           subvalue={stock?.symbol || 'ACME'}
-          icon={<DollarSign className="w-4 h-4 text-mauve" />}
+          icon={<DollarSign className="w-4 h-4 text-accent" />}
         />
         <StatTile
           label="Market Overall Rank"
           value={`#${ranks?.overallRank || 1} of ${ranks?.totalCompanies || 1}`}
           subvalue={`Sector Rank: #${ranks?.sectorRank || 1}`}
-          icon={<TrendingUp className="w-4 h-4 text-mauve" />}
+          icon={<TrendingUp className="w-4 h-4 text-accent" />}
         />
         <StatTile
           label="Composite Factor Score"
           value={`${ranks?.score || 50}/100`}
           subvalue="Multi-factor rank percentile"
-          icon={<Activity className="w-4 h-4 text-mauve" />}
+          icon={<Activity className="w-4 h-4 text-accent" />}
         />
         <StatTile
           label="Estimated Volatility"
           value={`${((risk?.estimatedVolatility || 0.22) * 100).toFixed(1)}%`}
           subvalue="Blended Sample + EWMA"
-          icon={<Layers className="w-4 h-4 text-mauve" />}
+          icon={<Layers className="w-4 h-4 text-accent" />}
         />
       </div>
 
@@ -100,7 +100,7 @@ export function CompanyDashboard() {
               <p className="text-xs text-muted">Percentile uncertainty bands (5th, 25th, 50th, 75th, 95th)</p>
             </div>
             {profitAnalytics?.fanChart30Days?.probabilityHigher != null && (
-              <Badge variant="mauve" size="sm">
+              <Badge variant="accent" size="sm">
                 P(Higher): {(profitAnalytics.fanChart30Days.probabilityHigher * 100).toFixed(1)}%
               </Badge>
             )}
@@ -117,7 +117,7 @@ export function CompanyDashboard() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-sm font-semibold text-white">Score Breakdown</h4>
-              <Badge variant="mauve" size="sm">FACTORS</Badge>
+              <Badge variant="accent" size="sm">FACTORS</Badge>
             </div>
 
             <div className="space-y-3 text-xs">
@@ -129,7 +129,7 @@ export function CompanyDashboard() {
                   </span>
                 </div>
                 <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
-                  <div className="bg-mauve h-full" style={{ width: `${ranks?.components?.returnRank || 50}%` }} />
+                  <div className="bg-accent h-full" style={{ width: `${ranks?.components?.returnRank || 50}%` }} />
                 </div>
               </div>
 
@@ -141,7 +141,7 @@ export function CompanyDashboard() {
                   </span>
                 </div>
                 <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
-                  <div className="bg-mauve h-full" style={{ width: `${ranks?.components?.sharpeRank || 50}%` }} />
+                  <div className="bg-accent h-full" style={{ width: `${ranks?.components?.sharpeRank || 50}%` }} />
                 </div>
               </div>
 
@@ -153,7 +153,7 @@ export function CompanyDashboard() {
                   </span>
                 </div>
                 <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
-                  <div className="bg-mauve h-full" style={{ width: `${ranks?.components?.invVolRank || 50}%` }} />
+                  <div className="bg-accent h-full" style={{ width: `${ranks?.components?.invVolRank || 50}%` }} />
                 </div>
               </div>
 
@@ -165,14 +165,14 @@ export function CompanyDashboard() {
                   </span>
                 </div>
                 <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
-                  <div className="bg-mauve h-full" style={{ width: `${ranks?.components?.invMddRank || 50}%` }} />
+                  <div className="bg-accent h-full" style={{ width: `${ranks?.components?.invMddRank || 50}%` }} />
                 </div>
               </div>
             </div>
           </div>
 
           <div className="mt-6 pt-4 border-t border-white/[0.08] text-xs text-muted">
-            1-Day 95% VaR: <span className="text-white font-mono font-semibold">${risk?.valueAtRisk95_1Day?.toFixed(2) || '0.00'}</span>
+            1-Day 95% VaR: <span className="text-white font-mono font-semibold">{formatINR(risk?.valueAtRisk95_1Day || 0)}</span>
           </div>
         </GlassCard>
       </div>
