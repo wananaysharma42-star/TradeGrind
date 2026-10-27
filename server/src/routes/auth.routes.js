@@ -12,7 +12,7 @@ const router = express.Router();
 export const COOKIE_OPTIONS_15D = {
   maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
   httpOnly: true,
-  sameSite: 'lax',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   path: '/',
   secure: process.env.NODE_ENV === 'production'
 };
@@ -20,8 +20,9 @@ export const COOKIE_OPTIONS_15D = {
 export const SESSION_COOKIE_OPTIONS_15D = {
   maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
   httpOnly: false,
-  sameSite: 'lax',
-  path: '/'
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  path: '/',
+  secure: process.env.NODE_ENV === 'production'
 };
 
 export function setAuthCookies(res, token) {
@@ -32,10 +33,12 @@ export function setAuthCookies(res, token) {
 }
 
 export function clearAuthCookies(res) {
-  res.clearCookie('tradegrind_token', { path: '/', httpOnly: true, sameSite: 'lax' });
-  res.clearCookie('tradegrind_session', { path: '/' });
-  res.clearCookie('tradesim_token', { path: '/', httpOnly: true, sameSite: 'lax' });
-  res.clearCookie('tradesim_session', { path: '/' });
+  const sameSite = process.env.NODE_ENV === 'production' ? 'none' : 'lax';
+  const secure = process.env.NODE_ENV === 'production';
+  res.clearCookie('tradegrind_token', { path: '/', httpOnly: true, sameSite, secure });
+  res.clearCookie('tradegrind_session', { path: '/', sameSite, secure });
+  res.clearCookie('tradesim_token', { path: '/', httpOnly: true, sameSite, secure });
+  res.clearCookie('tradesim_session', { path: '/', sameSite, secure });
 }
 
 // POST /api/auth/register

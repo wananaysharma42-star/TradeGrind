@@ -3,7 +3,8 @@
  */
 import { getCookie } from '../utils/cookies.js';
 
-const BASE_URL = `${(import.meta.env.VITE_API_URL || 'http://localhost:5001').replace(/\/+$/, '')}/api`;
+const rawApiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8009').replace(/\/+$/, '');
+const BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('tradegrind_token') || localStorage.getItem('tradesim_token') || getCookie('tradegrind_token') || getCookie('tradesim_token');
@@ -20,14 +21,21 @@ export async function apiRequest(endpoint, options = {}) {
     headers
   });
 
-  const data = await response.json().catch(() => ({}));
+  let data = null;
+  try {
+    data = await response.json();
+  } catch (parseErr) {
+    if (!response.ok) {
+      throw new Error(`Server responded with ${response.status}: ${response.statusText || 'Service Unavailable'}`);
+    }
+  }
 
-  if (!response.ok || data.success === false) {
-    const errorMsg = data.error?.message || response.statusText || 'Request failed';
+  if (!response.ok || !data || data.success === false) {
+    const errorMsg = data?.error?.message || data?.message || response.statusText || 'Request failed';
     const err = new Error(errorMsg);
     err.status = response.status;
-    err.code = data.error?.code;
-    err.details = data.error?.details;
+    err.code = data?.error?.code;
+    err.details = data?.error?.details;
     throw err;
   }
 
