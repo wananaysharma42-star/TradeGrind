@@ -3,7 +3,7 @@
  */
 import { getCookie } from '../utils/cookies.js';
 
-const BASE_URL = '/api';
+const BASE_URL = `${(import.meta.env.VITE_API_URL || 'http://localhost:5001').replace(/\/+$/, '')}/api`;
 
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('tradegrind_token') || localStorage.getItem('tradesim_token') || getCookie('tradegrind_token') || getCookie('tradesim_token');
