@@ -1,7 +1,7 @@
-# TradeSim System Audit Report (Phase 1)
+# TradeGrind System Audit Report (Phase 1)
 
 ## Executive Summary
-This document provides a comprehensive audit of the **TradeSim** codebase across server and client components, real-time socket architecture, quantitative mathematical formulations, database integrity, and UI/UX fidelity.
+This document provides a comprehensive audit of the **TradeGrind** codebase across server and client components, real-time socket architecture, quantitative mathematical formulations, database integrity, and UI/UX fidelity.
 
 ---
 
