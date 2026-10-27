@@ -88,6 +88,60 @@ describe('E2E Customer Journey (Register → Buy → Target → Alert → Notify
     expect(res.body.data.holding).toBeDefined();
   });
 
+  it('2b. Reconciles trade balances exactly (cash + holdings value changes match fees and prices)', async () => {
+    // 1. Check current portfolio before trade
+    const portBefore = await request(app)
+      .get('/api/portfolio')
+      .set('Authorization', `Bearer ${customerToken}`);
+    expect(portBefore.status).toBe(200);
+    const initialCash = portBefore.body.data.cash;
+    const initialHoldingsVal = portBefore.body.data.totalHoldingsValue;
+
+    // 2. Execute buy of 20 shares
+    const qtyToBuy = 20;
+    const buyRes = await request(app)
+      .post('/api/trade/buy')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        stockId: testStock._id.toString(),
+        quantity: qtyToBuy
+      });
+    expect(buyRes.status).toBe(200);
+    const tx = buyRes.body.data.transaction;
+    const grossCost = tx.quantity * tx.price;
+    const expectedFee = Math.round(grossCost * 0.0005 * 100) / 100;
+    const totalDeducted = Math.round((grossCost + expectedFee) * 100) / 100;
+
+    // 3. Verify cash deducted exactly equals gross cost + fee
+    const portAfter = await request(app)
+      .get('/api/portfolio')
+      .set('Authorization', `Bearer ${customerToken}`);
+    expect(portAfter.status).toBe(200);
+    const cashDelta = initialCash - portAfter.body.data.cash;
+    expect(Math.abs(cashDelta - totalDeducted)).toBeLessThanOrEqual(0.02);
+
+    // 4. Execute partial sell of 10 shares
+    const qtyToSell = 10;
+    const sellRes = await request(app)
+      .post('/api/trade/sell')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        stockId: testStock._id.toString(),
+        quantity: qtyToSell
+      });
+    expect(sellRes.status).toBe(200);
+    const sellTx = sellRes.body.data.transaction;
+    const sellGross = sellTx.quantity * sellTx.price;
+    const sellFee = Math.round(sellGross * 0.0005 * 100) / 100;
+    const expectedNetProceeds = Math.round((sellGross - sellFee) * 100) / 100;
+
+    const portAfterSell = await request(app)
+      .get('/api/portfolio')
+      .set('Authorization', `Bearer ${customerToken}`);
+    const sellCashDelta = portAfterSell.body.data.cash - portAfter.body.data.cash;
+    expect(Math.abs(sellCashDelta - expectedNetProceeds)).toBeLessThanOrEqual(0.02);
+  });
+
   it('3. Sets a probability target and verifies analytical probability computation', async () => {
     const res = await request(app)
       .post('/api/targets')
