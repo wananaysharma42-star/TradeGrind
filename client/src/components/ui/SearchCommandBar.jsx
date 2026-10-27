@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Terminal, ArrowRight, Zap, Bell, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
+import { formatINR } from '../../utils/formatters.js';
 
 /**
  * SearchCommandBar - Deterministic client-side command parser:
@@ -84,7 +85,7 @@ export function SearchCommandBar({
         symbol: alertMatch[1].toUpperCase(),
         direction: alertMatch[2].toUpperCase(),
         price: parseFloat(alertMatch[3]),
-        label: `Create Alert: ${alertMatch[1].toUpperCase()} price ${alertMatch[2].toLowerCase()} $${alertMatch[3]}`
+        label: `Create Alert: ${alertMatch[1].toUpperCase()} price ${alertMatch[2].toLowerCase()} ₹${alertMatch[3]}`
       });
       return;
     }
@@ -119,7 +120,7 @@ export function SearchCommandBar({
   return (
     <div ref={containerRef} className={clsx('relative w-full max-w-lg', className)}>
       <div className="relative flex items-center">
-        <Search className="absolute left-4 w-4 h-4 text-muted pointer-events-none" />
+        <Search className="absolute left-4 w-4 h-4 text-text-muted pointer-events-none" />
         <input
           type="text"
           value={query}
@@ -130,7 +131,7 @@ export function SearchCommandBar({
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder='Search stocks or type "buy INFY 10", "go portfolio"...'
-          className="w-full bg-white/[0.04] border border-white/[0.09] text-white text-sm rounded-full py-2.5 pl-11 pr-4 backdrop-blur-glass transition-all duration-200 placeholder:text-muted/60 focus:outline-none focus:border-mauve/50 focus:bg-white/[0.07] focus:ring-1 focus:ring-mauve/30 shadow-inner-glow"
+          className="w-full bg-surface border border-border text-text text-sm rounded-full py-2.5 pl-11 pr-4 backdrop-blur-glass transition-all duration-200 placeholder:text-text-muted/60 focus:outline-none focus:border-accent/60 focus:bg-raised focus:ring-1 focus:ring-accent/30 shadow-inner-glow"
         />
         {query && (
           <button
@@ -138,7 +139,7 @@ export function SearchCommandBar({
               setQuery('');
               setIsOpen(false);
             }}
-            className="absolute right-3.5 text-xs text-muted hover:text-white"
+            className="absolute right-3.5 text-xs text-text-muted hover:text-text"
           >
             Esc
           </button>
@@ -147,7 +148,7 @@ export function SearchCommandBar({
 
       {/* Dropdown Suggestions */}
       {isOpen && (parsedPreview || filteredStocks.length > 0) && (
-        <div className="absolute left-0 right-0 mt-2 p-2 bg-dark-base/95 border border-white/10 rounded-20 backdrop-blur-glass shadow-glass z-50 overflow-hidden">
+        <div className="absolute left-0 right-0 mt-2 p-2 bg-raised border border-border rounded-20 backdrop-blur-glass shadow-glass z-50 overflow-hidden">
           {parsedPreview && (
             <div
               onClick={() => {
@@ -159,11 +160,11 @@ export function SearchCommandBar({
                 setQuery('');
                 setIsOpen(false);
               }}
-              className="flex items-center space-x-3 p-3 rounded-16 bg-mauve/15 border border-mauve/30 cursor-pointer hover:bg-mauve/25 transition-all text-sm text-mauve font-medium mb-1.5"
+              className="flex items-center space-x-3 p-3 rounded-16 bg-accent/15 border border-accent/30 cursor-pointer hover:bg-accent/25 transition-all text-sm text-accent font-medium mb-1.5"
             >
-              <Terminal className="w-4 h-4 text-mauve" />
+              <Terminal className="w-4 h-4 text-accent" />
               <span className="flex-1">{parsedPreview.label}</span>
-              <span className="text-xs bg-mauve/20 px-2 py-0.5 rounded-full text-white font-mono">Press Enter ↵</span>
+              <span className="text-xs bg-accent/25 px-2 py-0.5 rounded-full text-text font-mono">Press Enter ↵</span>
             </div>
           )}
 
@@ -175,25 +176,25 @@ export function SearchCommandBar({
                 setQuery('');
                 setIsOpen(false);
               }}
-              className="flex items-center justify-between p-2.5 rounded-16 hover:bg-white/[0.06] cursor-pointer transition-colors"
+              className="flex items-center justify-between p-2.5 rounded-16 hover:bg-accent/[0.06] cursor-pointer transition-colors"
             >
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-mauve/20 border border-mauve/40 flex items-center justify-center text-xs font-bold text-mauve">
+                <div className="w-8 h-8 rounded-full bg-accent/15 border border-accent/35 flex items-center justify-center text-xs font-bold text-accent">
                   {stock.symbol.slice(0, 2)}
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-white">{stock.symbol}</div>
-                  <div className="text-xs text-muted truncate max-w-[180px]">{stock.name}</div>
+                  <div className="text-sm font-semibold text-text">{stock.symbol}</div>
+                  <div className="text-xs text-text-muted truncate max-w-[180px]">{stock.name}</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-semibold text-white">
-                  ${typeof stock.price === 'number' ? stock.price.toFixed(2) : (stock.currentPrice?.toFixed(2) || '0.00')}
+                <div className="text-sm font-semibold text-text">
+                  {formatINR(typeof stock.price === 'number' ? stock.price : (stock.currentPrice || 0))}
                 </div>
                 <div
                   className={clsx(
                     'text-xs font-medium',
-                    (stock.changePct ?? stock.dayChangePercent ?? 0) >= 0 ? 'text-trade-green' : 'text-trade-red'
+                    (stock.changePct ?? stock.dayChangePercent ?? 0) >= 0 ? 'text-gain' : 'text-loss'
                   )}
                 >
                   {(stock.changePct ?? stock.dayChangePercent ?? 0) >= 0 ? '+' : ''}

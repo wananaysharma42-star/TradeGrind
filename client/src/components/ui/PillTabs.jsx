@@ -2,11 +2,11 @@ import React from 'react';
 import clsx from 'clsx';
 
 /**
- * PillTabs - Tab navigation bar with mauve-glow active state.
+ * PillTabs - Tab navigation bar with Amber Gold glass-glow active state.
  */
 export function PillTabs({ tabs = [], activeTab, onChange, className = '' }) {
   return (
-    <div className={clsx('flex items-center space-x-1.5 p-1 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-md', className)}>
+    <div className={clsx('flex items-center space-x-1.5 p-1 rounded-full bg-surface/70 border border-border backdrop-blur-md', className)}>
       {tabs.map((tab) => {
         const key = typeof tab === 'object' ? tab.id : tab;
         const label = typeof tab === 'object' ? tab.label : tab;
@@ -18,10 +18,10 @@ export function PillTabs({ tabs = [], activeTab, onChange, className = '' }) {
             key={key}
             onClick={() => onChange(key)}
             className={clsx(
-              'flex items-center space-x-2 px-4 py-1.5 text-xs font-medium rounded-full transition-all duration-200',
+              'flex items-center space-x-2 px-4 py-1.5 text-xs font-medium rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60',
               isActive
-                ? 'bg-mauve-pill text-mauve border border-mauve/40 shadow-glass-glow'
-                : 'text-muted hover:text-white hover:bg-white/5'
+                ? 'bg-amber-pill text-accent border border-accent/35 shadow-glass-glow font-semibold'
+                : 'text-text-muted hover:text-text hover:bg-surface'
             )}
           >
             {icon && <span className="text-sm">{icon}</span>}
@@ -49,10 +49,10 @@ export function FilterPills({ options = [], value, onChange, className = '' }) {
             key={optVal}
             onClick={() => onChange(optVal)}
             className={clsx(
-              'px-3 py-1 text-xs font-semibold rounded-full border transition-all duration-150',
+              'px-3 py-1 text-xs font-semibold rounded-full border transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent/50',
               isActive
-                ? 'bg-mauve/20 border-mauve/50 text-mauve shadow-sm'
-                : 'bg-white/[0.03] border-white/[0.07] text-muted hover:text-white hover:border-white/20'
+                ? 'bg-accent/15 border-accent/40 text-accent shadow-sm'
+                : 'bg-surface/50 border-border text-text-muted hover:text-text hover:border-accent/25'
             )}
           >
             {optLabel}

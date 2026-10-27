@@ -2,25 +2,32 @@ import React from 'react';
 import clsx from 'clsx';
 
 /**
- * Button - Primary mauve-glass, ghost, icon-round, danger variants.
+ * Button - Amber Gold primary solid, secondary glass, ghost, icon-round, danger variants.
  */
 export function Button({
   children,
-  variant = 'primary', // 'primary' | 'ghost' | 'icon-round' | 'outline' | 'danger'
+  variant = 'primary', // 'primary' | 'secondary' | 'ghost' | 'icon-round' | 'outline' | 'danger'
   size = 'md',        // 'sm' | 'md' | 'lg'
   icon = null,
   disabled = false,
   className = '',
   ...props
 }) {
-  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none';
+  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60';
 
   const variants = {
-    primary: 'bg-mauve-gradient text-dark-base font-semibold shadow-glass-glow hover:brightness-110 border border-mauve-light/30',
-    ghost: 'bg-white/5 hover:bg-white/10 text-white/90 hover:text-white border border-white/10',
-    outline: 'border border-mauve/40 text-mauve hover:bg-mauve/10',
-    'icon-round': 'p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white/90 hover:text-white border border-white/10 shadow-inner-glow',
-    danger: 'bg-trade-red/20 text-trade-red hover:bg-trade-red/30 border border-trade-red/30'
+    // Primary: Solid gold with dark background text for the strongest CTAs
+    primary: 'bg-accent text-[#0C0A07] font-semibold hover:bg-accent/90 shadow-[0_0_20px_rgba(245,185,59,0.25)] border border-accent/40',
+    // Secondary: Amber glass gradient with gold text
+    secondary: 'bg-amber-pill text-accent border border-accent/35 shadow-inner-glow hover:brightness-110',
+    // Ghost: Raised surface with border
+    ghost: 'bg-surface/60 hover:bg-surface text-text hover:text-white border border-border',
+    // Outline: Gold border and text
+    outline: 'border border-accent/40 text-accent hover:bg-accent/10',
+    // Icon-round: Circular button for toolbars and actions
+    'icon-round': 'p-2.5 rounded-full bg-surface/80 hover:bg-surface text-text-muted hover:text-text border border-border shadow-inner-glow',
+    // Danger: Loss red tint with icon/text
+    danger: 'bg-loss/15 text-loss hover:bg-loss/25 border border-loss/30'
   };
 
   const sizes = {

@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import clsx from 'clsx';
 
 /**
- * Modal - Centered glassmorphic dialogue with dark backdrop blur.
+ * Modal - Centered glassmorphic dialogue with Amber Gold backdrop blur and borders.
  */
 export function Modal({
   isOpen,
@@ -33,28 +33,28 @@ export function Modal({
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-dark-base/80 backdrop-blur-md transition-opacity duration-300 animate-in fade-in"
+        className="fixed inset-0 bg-[#0C0A07]/85 backdrop-blur-md transition-opacity duration-300 animate-in fade-in"
       />
 
       {/* Dialog content */}
       <div
         ref={modalRef}
         className={clsx(
-          'relative w-full rounded-24 bg-dark-base/90 border border-white/10 p-6 backdrop-blur-glass shadow-glass z-10',
+          'relative w-full rounded-24 bg-raised border border-border p-6 backdrop-blur-glass shadow-glass z-10 text-text',
           'transition-all duration-300 animate-in zoom-in-95',
           maxWidth,
           className
         )}
       >
-        <div className="flex items-center justify-between pb-4 border-b border-white/[0.08] mb-5">
+        <div className="flex items-center justify-between pb-4 border-b border-border mb-5">
           <div>
-            <h3 className="text-lg font-semibold text-white tracking-wide">{title}</h3>
-            {subtitle && <p className="text-xs text-muted mt-0.5">{subtitle}</p>}
+            <h3 className="text-lg font-semibold text-text tracking-wide">{title}</h3>
+            {subtitle && <p className="text-xs text-text-muted mt-0.5">{subtitle}</p>}
           </div>
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-muted hover:text-white transition-colors"
+              className="p-1.5 rounded-full bg-surface border border-border text-text-muted hover:text-text transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-accent/50"
             >
               <X className="w-4 h-4" />
             </button>

@@ -3,19 +3,21 @@ import clsx from 'clsx';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 /**
- * Badge - Positive/Negative Pill (Green / Red / Neutral / Mauve)
+ * Badge - Financial Outcome Pills (Gain / Loss / Gold Accent / Neutral)
+ * Gold is the brand accent; gain is green and loss is red.
  */
 export function Badge({
   children,
-  variant = 'neutral', // 'positive' | 'negative' | 'mauve' | 'neutral'
+  variant = 'neutral', // 'positive' | 'negative' | 'accent' | 'gold' | 'neutral'
   size = 'md',
   className = ''
 }) {
   const styles = {
-    positive: 'bg-trade-green/15 text-trade-green border-trade-green/30',
-    negative: 'bg-trade-red/15 text-trade-red border-trade-red/30',
-    mauve: 'bg-mauve/20 text-mauve border-mauve/40 shadow-sm',
-    neutral: 'bg-white/5 text-muted border-white/10'
+    positive: 'bg-gain/15 text-gain border-gain/30',
+    negative: 'bg-loss/15 text-loss border-loss/30',
+    accent: 'bg-accent/15 text-accent border-accent/35 shadow-sm',
+    gold: 'bg-accent/15 text-accent border-accent/35 shadow-sm',
+    neutral: 'bg-surface border-border text-text-muted'
   };
 
   const sizes = {
@@ -43,7 +45,7 @@ export function Badge({
  */
 export function NumberFlash({
   value,
-  formatter = (v) => `$${Number(v).toFixed(2)}`,
+  formatter = (v) => `₹${Number(v).toFixed(2)}`,
   className = ''
 }) {
   const [flash, setFlash] = useState(null); // 'green' | 'red' | null
@@ -64,8 +66,8 @@ export function NumberFlash({
     <span
       className={clsx(
         'inline-block px-1.5 py-0.5 rounded transition-all duration-300 font-mono',
-        flash === 'green' && 'bg-trade-green/20 text-trade-green scale-105',
-        flash === 'red' && 'bg-trade-red/20 text-trade-red scale-105',
+        flash === 'green' && 'bg-gain/20 text-gain scale-105',
+        flash === 'red' && 'bg-loss/20 text-loss scale-105',
         !flash && 'text-inherit',
         className
       )}
@@ -91,29 +93,29 @@ export function StatTile({
   return (
     <div
       className={clsx(
-        'p-5 rounded-20 bg-white/[0.035] border border-white/[0.07] backdrop-blur-card hover:bg-white/[0.05] transition-all',
+        'p-5 rounded-20 bg-surface/80 border border-border backdrop-blur-card hover:border-accent/30 hover:bg-surface transition-all',
         className
       )}
     >
-      <div className="flex items-center justify-between text-muted text-xs font-medium mb-2">
+      <div className="flex items-center justify-between text-text-muted text-xs font-medium mb-2">
         <span>{label}</span>
-        {icon && <span className="p-1.5 rounded-full bg-white/5 text-muted">{icon}</span>}
+        {icon && <span className="p-1.5 rounded-full bg-raised border border-border text-accent">{icon}</span>}
       </div>
-      <div className="text-xl font-bold text-white tracking-tight">{value}</div>
+      <div className="text-xl font-bold text-text tracking-tight">{value}</div>
       {(change != null || subvalue) && (
         <div className="flex items-center space-x-1.5 mt-2 text-xs">
           {change != null && (
             <span
               className={clsx(
                 'inline-flex items-center font-semibold',
-                isPositive ? 'text-trade-green' : 'text-trade-red'
+                isPositive ? 'text-gain' : 'text-loss'
               )}
             >
               {isPositive ? <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" /> : <ArrowDownRight className="w-3.5 h-3.5 mr-0.5" />}
               {isPositive ? '+' : ''}{change.toFixed(2)}%
             </span>
           )}
-          {subvalue && <span className="text-muted truncate">{subvalue}</span>}
+          {subvalue && <span className="text-text-muted truncate">{subvalue}</span>}
         </div>
       )}
     </div>
@@ -122,18 +124,19 @@ export function StatTile({
 
 /**
  * StockLogo - Circular coloured initials logo.
+ * Curated muted-gold/earth set with text #FAF5EA.
  */
 export function StockLogo({ symbol = '??', size = 'md', className = '' }) {
   const initials = symbol.slice(0, 2).toUpperCase();
 
-  // Deterministic pastel palette based on symbol string
   const hash = initials.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
   const palettes = [
-    'bg-purple-500/20 text-purple-300 border-purple-500/40',
-    'bg-pink-500/20 text-pink-300 border-pink-500/40',
-    'bg-blue-500/20 text-blue-300 border-blue-500/40',
-    'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-    'bg-amber-500/20 text-amber-300 border-amber-500/40'
+    'bg-[#B7791F]/20 text-[#FAF5EA] border-[#B7791F]/40',
+    'bg-[#F5B93B]/15 text-[#FAF5EA] border-[#F5B93B]/35',
+    'bg-[#C27A5B]/20 text-[#FAF5EA] border-[#C27A5B]/40',
+    'bg-[#A39578]/20 text-[#FAF5EA] border-[#A39578]/35',
+    'bg-[#8C7A5B]/25 text-[#FAF5EA] border-[#8C7A5B]/40',
+    'bg-[#D4A373]/20 text-[#FAF5EA] border-[#D4A373]/35'
   ];
   const palette = palettes[hash % palettes.length];
 
@@ -158,7 +161,7 @@ export function StockLogo({ symbol = '??', size = 'md', className = '' }) {
 }
 
 /**
- * Avatar - User avatar with fallback initials.
+ * Avatar - User avatar with fallback initials and gold avatar ring.
  */
 export function Avatar({ name = 'User', src = null, size = 'md', className = '' }) {
   const initials = name
@@ -179,7 +182,7 @@ export function Avatar({ name = 'User', src = null, size = 'md', className = '' 
       <img
         src={src}
         alt={name}
-        className={clsx('rounded-full object-cover border border-white/20', sizes[size] || sizes.md, className)}
+        className={clsx('rounded-full object-cover border-2 border-accent/60', sizes[size] || sizes.md, className)}
       />
     );
   }
@@ -187,7 +190,7 @@ export function Avatar({ name = 'User', src = null, size = 'md', className = '' 
   return (
     <div
       className={clsx(
-        'rounded-full bg-mauve-gradient text-dark-base font-bold flex items-center justify-center border border-white/20 shadow-inner-glow',
+        'rounded-full bg-gradient-to-br from-accent-deep to-accent text-[#0C0A07] font-bold flex items-center justify-center border-2 border-accent/60 shadow-inner-glow',
         sizes[size] || sizes.md,
         className
       )}

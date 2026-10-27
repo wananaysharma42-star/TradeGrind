@@ -7,85 +7,124 @@
 @tailwind components;
 @tailwind utilities;
 
+:root, [data-theme="amber-gold"] {
+  --color-bg: #0C0A07;
+  --color-surface: #17130C;
+  --color-surface-glass: rgba(245, 185, 59, 0.04);
+  --color-raised: #1E1810;
+  --color-border: #2B2315;
+  --color-border-glass: rgba(245, 185, 59, 0.10);
+  --color-accent: #F5B93B;
+  --color-accent-deep: #B7791F;
+  --color-accent-soft: rgba(245, 185, 59, 0.12);
+  --color-gain: #4ADE80;
+  --color-loss: #F87171;
+  --color-text-primary: #FAF5EA;
+  --color-text-muted: #A39578;
+  --color-text-disabled: #6B614C;
+  --color-warning: #F59E0B;
+}
+
 @layer base {
   body {
-    background-color: theme('colors.dark-base');
-    color: theme('colors.primary-white');
-    background-image: theme('backgroundImage.plum-radial');
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    background-image: theme('backgroundImage.amber-radial');
     background-attachment: fixed;
     min-height: 100vh;
     font-family: theme('fontFamily.poppins');
   }
+
+  ::selection {
+    background-color: rgba(245, 185, 59, 0.30);
+    color: #F5B93B;
+  }
+
+  *:focus-visible {
+    outline: 2px solid rgba(245, 185, 59, 0.60);
+    outline-offset: 2px;
+  }
 }
 
-/* Glassmorphism Surface Classes using Design Tokens */
+/* Glassmorphism Surface Classes using Amber Gold Tokens */
 .glass-panel {
-  background: theme('colors.glass-surface');
+  background: var(--color-surface-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid theme('colors.glass-border');
+  border: 1px solid var(--color-border-glass);
   box-shadow: 
-    0 8px 32px 0 rgba(0, 0, 0, 0.37),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.06);
+    0 8px 32px 0 rgba(0, 0, 0, 0.50),
+    inset 0 1px 1px 0 rgba(245, 185, 59, 0.12);
   border-radius: theme('borderRadius.24');
 }
 
 .glass-tile {
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--color-surface-glass);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-glass);
+  box-shadow: inset 0 1px 1px 0 rgba(245, 185, 59, 0.08);
   border-radius: theme('borderRadius.20');
   transition: all 0.2s ease-in-out;
 }
 
 .glass-tile:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(201, 166, 216, 0.25);
+  background: rgba(245, 185, 59, 0.07);
+  border-color: rgba(245, 185, 59, 0.28);
   transform: translateY(-1px);
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(245, 185, 59, 0.05);
+  border: 1px solid var(--color-border-glass);
   border-radius: 9999px;
   transition: all 0.2s ease;
 }
 
 .glass-pill-active {
-  background: theme('backgroundImage.mauve-pill');
-  border: 1px solid rgba(201, 166, 216, 0.4);
-  color: theme('colors.mauve.DEFAULT');
+  background: theme('backgroundImage.amber-pill');
+  border: 1px solid rgba(245, 185, 59, 0.35);
+  color: var(--color-accent);
   box-shadow: theme('boxShadow.glass-glow');
 }
 
 .glass-input {
-  background: theme('colors.glass-surface');
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 9999px;
   transition: all 0.2s ease;
 }
 
 .glass-input:focus {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(201, 166, 216, 0.5);
+  background: rgba(245, 185, 59, 0.06);
+  border-color: rgba(245, 185, 59, 0.50);
   outline: none;
-  box-shadow: 0 0 15px rgba(201, 166, 216, 0.25);
+  box-shadow: 0 0 15px rgba(245, 185, 59, 0.20);
 }
 
-/* Custom Scrollbar */
+/* Custom Amber Gold Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(11, 7, 9, 0.6);
+  background: #0C0A07;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: #2B2315;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(201, 166, 216, 0.3);
+  background: #B7791F;
+}
+
+/* Browser Autofill Override */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #17130C inset !important;
+  -webkit-text-fill-color: #FAF5EA !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
