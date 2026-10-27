@@ -247,7 +247,9 @@ GitHub Repository:
 https://github.com/wananaysharma42-star/TradeGrind
 
 Deployed Application / Build:
-http://localhost:5173 (Local distribution with embedded one-command setup via `npm run dev`)
+- Client (Vercel): https://trade-grind-wzv2-ecru.vercel.app/
+- API Gateway (Render): https://tradegrind.onrender.com
+- Local Distribution: http://localhost:5173 (via `npm run dev`)
 
 Demo Video:
 [Insert Demo Video Link - see DEMO.md for presentation script]
