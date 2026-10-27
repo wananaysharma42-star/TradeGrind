@@ -252,7 +252,7 @@ Deployed Application / Build:
 - Local Distribution: http://localhost:5173 (via `npm run dev`)
 
 Demo Video:
-[Insert Demo Video Link - see DEMO.md for presentation script]
+https://drive.google.com/file/d/1kIFm_dLPSYshe2wBmOE3LcYNqnA_39xe/view?usp=drive_link
 
 Tech Stack:
 MongoDB, Express.js, React 18, Node.js (MERN), Socket.io, Redux Toolkit, Tailwind CSS, Recharts, Vitest
