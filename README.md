@@ -150,8 +150,8 @@ TradeGrind implements a dual-persona reactive web architecture:
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/mrinal1224/Social-Media-A-2029.git
-cd Social-Media-A-2029
+git clone https://github.com/wananaysharma42-star/TradeGrind.git
+cd TradeGrind
 ```
 
 ### Step 2: Install Dependencies
@@ -244,7 +244,7 @@ Problem Statement:
 Democratizing institutional financial simulation and quantitative risk modeling by providing a zero-cost, transparent, 100% deterministic platform with real-time Geometric Brownian Motion market dynamics, closed-form barrier probability engines, and corporate what-if stress-testing—without relying on black-box heuristics or external APIs.
 
 GitHub Repository:
-https://github.com/mrinal1224/Social-Media-A-2029
+https://github.com/wananaysharma42-star/TradeGrind
 
 Deployed Application / Build:
 http://localhost:5173 (Local distribution with embedded one-command setup via `npm run dev`)
